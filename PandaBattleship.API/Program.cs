@@ -1,6 +1,7 @@
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
+builder.AddNpgsqlDataSource("db");
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -17,26 +18,31 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 app.MapGet("/test", () => Results.Ok("I'm alive"));
 
-var summaries = new[]
+app.MapGet("/db-check", async (Npgsql.NpgsqlDataSource dataSource) =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    using var connection = await dataSource.OpenConnectionAsync();
+    using var command = connection.CreateCommand();
+    command.CommandText = "CREATE TABLE IF NOT EXISTS test_table (id SERIAL PRIMARY KEY, name TEXT); INSERT INTO test_table (name) VALUES ('Test ' || now()); SELECT COUNT(*) FROM test_table;";
+    var count = await command.ExecuteScalarAsync();
+    return Results.Ok(new { Message = "Connected to DB!", RowCount = count });
+});
 
-app.MapGet("/weatherforecast", () =>
+app.MapGet("/db-test", async (Npgsql.NpgsqlDataSource dataSource) =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+    using var command = dataSource.CreateCommand("SELECT version();");
+    var version = await command.ExecuteScalarAsync();
+    return Results.Ok(new { Version = version?.ToString() });
+});
+
+app.MapGet("/setup-db", async (Npgsql.NpgsqlDataSource dataSource) =>
+{
+    using var command = dataSource.CreateCommand("CREATE TABLE IF NOT EXISTS Test (Id SERIAL PRIMARY KEY, Name TEXT);");
+    await command.ExecuteNonQueryAsync();
+    return Results.Ok("Table created");
+});
 
 app.Run();
 

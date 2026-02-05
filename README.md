@@ -10,6 +10,7 @@ This will contain a project for me to work on the new concepts and technologies 
 -   Aspire
 -   Docker
 -   Single Player vs AI
+-   Build with GitHub actions
 
   
 

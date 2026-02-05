@@ -11,8 +11,7 @@ This will contain a project for me to work on the new concepts and technologies 
 -   Docker
 -   Single Player vs AI
 -   Build with GitHub actions
-
-  
+-   xUnit
 
 ### Later
 
@@ -21,3 +20,4 @@ This will contain a project for me to work on the new concepts and technologies 
 -   Playwright testing to simulate two players playing
 -   Skins
 -   JWT Tokens
+-   ?React Open Telemetry

@@ -30,20 +30,6 @@ app.MapGet("/db-check", async (Npgsql.NpgsqlDataSource dataSource) =>
     return Results.Ok(new { Message = "Connected to DB!", RowCount = count });
 });
 
-app.MapGet("/db-test", async (Npgsql.NpgsqlDataSource dataSource) =>
-{
-    using var command = dataSource.CreateCommand("SELECT version();");
-    var version = await command.ExecuteScalarAsync();
-    return Results.Ok(new { Version = version?.ToString() });
-});
-
-app.MapGet("/setup-db", async (Npgsql.NpgsqlDataSource dataSource) =>
-{
-    using var command = dataSource.CreateCommand("CREATE TABLE IF NOT EXISTS Test (Id SERIAL PRIMARY KEY, Name TEXT);");
-    await command.ExecuteNonQueryAsync();
-    return Results.Ok("Table created");
-});
-
 app.Run();
 
 public partial class Program { }

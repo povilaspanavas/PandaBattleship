@@ -11,15 +11,16 @@ var api = builder
     .AddProject<Projects.PandaBattleship_API>("PandaBattleshipApi")
     .WithReference(db)
     .WaitFor(db)
+    .WithHttpsEndpoint()
     .WithUrlForEndpoint("http", x =>
     {
-        x.DisplayText = "Home (http)";
-        x.DisplayOrder = 1;
+        x.DisplayText = "API Home (http)";
+        x.DisplayOrder = 100; // give the top-most item the largest number (Aspire displays descending)
     })
     .WithUrlForEndpoint("https", x =>
     {
-        x.DisplayText = "Home (https)";
-        x.DisplayOrder = 2;
+        x.DisplayText = "API Home (https)";
+        x.DisplayOrder = 90;
     })
     .WithUrls(ctx =>
     {
@@ -28,7 +29,8 @@ var api = builder
         {
             DisplayText = "Check Db (http)",
             Endpoint = http.Endpoint,
-            Url = http.Url + "/db-check"
+            Url = http.Url + "/db-check",
+            DisplayOrder = 80
         });
     });
 
@@ -37,6 +39,11 @@ var api = builder
 builder.AddNpmApp("PandaBattleshipFe", "../PandaBattleship.FE")
     .WithHttpEndpoint(env: "PORT")
     .WithExternalHttpEndpoints()
-    .WithReference(api);
+    .WithReference(api)
+    .WithUrlForEndpoint("http", x =>
+    {
+        x.DisplayText = "FE (http)";
+        x.DisplayOrder = 100;
+    });
 
 builder.Build().Run();

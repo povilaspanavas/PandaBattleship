@@ -3,6 +3,8 @@ name: Build PandaBattleship API
 on:
   pull_request:
     branches: [ main ]
+    paths:
+      - 'PandaBattleship.API/**'
 
 jobs:
   build:

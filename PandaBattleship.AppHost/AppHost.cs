@@ -29,7 +29,7 @@ var api = builder
         {
             DisplayText = "Health",
             Endpoint = https.Endpoint,
-            Url = https.Url + "/healthui",
+            Url = https.Url + "/health",
             DisplayOrder = 85
         });
         ctx.Urls.Add(new ResourceUrlAnnotation

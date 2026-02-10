@@ -14,26 +14,39 @@ var api = builder
     .WithHttpsEndpoint()
     .WithUrlForEndpoint("http", x =>
     {
-        x.DisplayText = "API Home (http)";
+        x.DisplayText = "Home (http)";
         x.DisplayOrder = 100; // give the top-most item the largest number (Aspire displays descending)
     })
     .WithUrlForEndpoint("https", x =>
     {
-        x.DisplayText = "API Home (https)";
+        x.DisplayText = "Home (https)";
         x.DisplayOrder = 90;
     })
     .WithUrls(ctx =>
     {
-        var http = ctx.Urls.First(x => x.Endpoint?.EndpointName == "http");
+        var https = ctx.Urls.First(x => x.Endpoint?.EndpointName == "https");
         ctx.Urls.Add(new ResourceUrlAnnotation
         {
-            DisplayText = "Check Db (http)",
-            Endpoint = http.Endpoint,
-            Url = http.Url + "/db-check",
+            DisplayText = "Health",
+            Endpoint = https.Endpoint,
+            Url = https.Url + "/healthui",
+            DisplayOrder = 85
+        });
+        ctx.Urls.Add(new ResourceUrlAnnotation
+        {
+            DisplayText = "Check Db",
+            Endpoint = https.Endpoint,
+            Url = https.Url + "/db-check",
             DisplayOrder = 80
         });
-    });
-
+    })
+    // Remove duplicate with http
+    .WithUrls(ctx =>
+    {
+        var http = ctx.Urls.First(x => x.Endpoint?.EndpointName == "http");
+        ctx.Urls.Remove(http);
+    })
+    .WithHttpHealthCheck("health");
 
 
 builder.AddNpmApp("PandaBattleshipFe", "../PandaBattleship.FE")

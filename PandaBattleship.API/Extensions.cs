@@ -1,1 +1,0 @@
-﻿namespace PandaBattleship.API;

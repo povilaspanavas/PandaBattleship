@@ -1,3 +1,5 @@
+using PandaBattleship.AppHost;
+
 var builder = DistributedApplication.CreateBuilder(args);
 
 var dbPassword = builder.AddParameter("DbPassword", secret: true);
@@ -7,42 +9,14 @@ var db = builder
     .WithLifetime(ContainerLifetime.Persistent)
     .AddDatabase("db", "pandaDb");
 
-var api = builder
-    .AddProject<Projects.PandaBattleship_API>("PandaBattleshipApi")
-    .WithReference(db)
-    .WaitFor(db)
-    .WithHttpsEndpoint()
-    .WithUrlForEndpoint("https", x =>
-    {
-        x.DisplayText = "Home";
-        x.DisplayOrder = 90;
-    })
-    .WithUrls(ctx =>
-    {
-        var https = ctx.Urls.First(x => x.Endpoint?.EndpointName == "https");
-        ctx.Urls.Add(new ResourceUrlAnnotation
-        {
-            DisplayText = "Health",
-            Endpoint = https.Endpoint,
-            Url = https.Url + "/health",
-            DisplayOrder = 85
-        });
-        ctx.Urls.Add(new ResourceUrlAnnotation
-        {
-            DisplayText = "Check Db",
-            Endpoint = https.Endpoint,
-            Url = https.Url + "/db-check",
-            DisplayOrder = 80
-        });
-    })
-    // Remove HTTP endpoint from dashboard (only show HTTPS URLs)
-    .WithUrls(ctx =>
-    {
-        var http = ctx.Urls.First(x => x.Endpoint?.EndpointName == "http");
-        ctx.Urls.Remove(http);
-    })
-    .WithHttpHealthCheck("health");
-
+var api =
+    builder
+        .AddProject<Projects.PandaBattleship_API>("PandaBattleshipApi")
+        .WithReference(db)
+        .WaitFor(db)
+        .WithHttpsEndpoint()
+        .WithHttpHealthCheck("health")
+        .ConfigureCustomUrls();
 
 builder.AddNpmApp("PandaBattleshipFe", "../PandaBattleship.FE")
     .WithHttpEndpoint(env: "PORT")

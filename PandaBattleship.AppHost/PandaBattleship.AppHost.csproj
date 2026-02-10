@@ -18,4 +18,8 @@
       <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="13.1.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="ApiExtensions\" />
+    </ItemGroup>
+
 </Project>

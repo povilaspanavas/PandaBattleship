@@ -1,3 +1,5 @@
+using PandaBattleship.AppHost;
+
 var builder = DistributedApplication.CreateBuilder(args);
 
 var dbPassword = builder.AddParameter("DbPassword", secret: true);
@@ -7,34 +9,14 @@ var db = builder
     .WithLifetime(ContainerLifetime.Persistent)
     .AddDatabase("db", "pandaDb");
 
-var api = builder
-    .AddProject<Projects.PandaBattleship_API>("PandaBattleshipApi")
-    .WithReference(db)
-    .WaitFor(db)
-    .WithHttpsEndpoint()
-    .WithUrlForEndpoint("http", x =>
-    {
-        x.DisplayText = "API Home (http)";
-        x.DisplayOrder = 100; // give the top-most item the largest number (Aspire displays descending)
-    })
-    .WithUrlForEndpoint("https", x =>
-    {
-        x.DisplayText = "API Home (https)";
-        x.DisplayOrder = 90;
-    })
-    .WithUrls(ctx =>
-    {
-        var http = ctx.Urls.First(x => x.Endpoint?.EndpointName == "http");
-        ctx.Urls.Add(new ResourceUrlAnnotation
-        {
-            DisplayText = "Check Db (http)",
-            Endpoint = http.Endpoint,
-            Url = http.Url + "/db-check",
-            DisplayOrder = 80
-        });
-    });
-
-
+var api =
+    builder
+        .AddProject<Projects.PandaBattleship_API>("PandaBattleshipApi")
+        .WithReference(db)
+        .WaitFor(db)
+        .WithHttpsEndpoint()
+        .WithHttpHealthCheck("health")
+        .ConfigureCustomUrls();
 
 builder.AddNpmApp("PandaBattleshipFe", "../PandaBattleship.FE")
     .WithHttpEndpoint(env: "PORT")

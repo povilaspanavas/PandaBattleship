@@ -12,14 +12,9 @@ var api = builder
     .WithReference(db)
     .WaitFor(db)
     .WithHttpsEndpoint()
-    .WithUrlForEndpoint("http", x =>
-    {
-        x.DisplayText = "Home (http)";
-        x.DisplayOrder = 100; // give the top-most item the largest number (Aspire displays descending)
-    })
     .WithUrlForEndpoint("https", x =>
     {
-        x.DisplayText = "Home (https)";
+        x.DisplayText = "Home";
         x.DisplayOrder = 90;
     })
     .WithUrls(ctx =>
@@ -40,7 +35,7 @@ var api = builder
             DisplayOrder = 80
         });
     })
-    // Remove duplicate with http
+    // Remove HTTP endpoint from dashboard (only show HTTPS URLs)
     .WithUrls(ctx =>
     {
         var http = ctx.Urls.First(x => x.Endpoint?.EndpointName == "http");

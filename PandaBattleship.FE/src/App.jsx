@@ -1,4 +1,5 @@
 import Game from './components/Game';
+import DisplayAllLayouts from './components/DisplayAllLayouts';
 import pandaLogo from './assets/brave_panda_1024.png'
 
 export default function App() {
@@ -9,6 +10,9 @@ export default function App() {
                 <img src={pandaLogo} className="max-w-30" alt="Panda Battleship" />
             </div>
             <Game />
+            <div className="mt-20 w-full border-t border-gray-700 pt-10">
+                <DisplayAllLayouts />
+            </div>
         </div>
     )
 }

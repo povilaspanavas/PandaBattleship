@@ -2,19 +2,19 @@
   {
     name: "Lithuanian Classic",
     ships: [
-      // 1 ship of 4 cells (L-shape)
-      { type: 'Battleship', coords: [[0, 0], [1, 0], [2, 0], [2, 1]] },
+      // 1 ship of 4 cells (Straight - placed horizontally)
+      { type: 'Battleship', coords: [[1, 1], [1, 2], [1, 3], [1, 4]] },
       // 2 ships of 3 cells
-      { type: 'Cruiser', coords: [[0, 3], [0, 4], [1, 4]] }, // L-shape
-      { type: 'Cruiser', coords: [[4, 0], [4, 1], [4, 2]] }, // Straight
+      { type: 'Cruiser', coords: [[3, 6], [4, 6], [4, 7]] }, // L-shape
+      { type: 'Cruiser', coords: [[8, 1], [8, 2], [8, 3]] }, // Straight
       // 3 ships of 2 cells
-      { type: 'Destroyer', coords: [[6, 0], [7, 0]] },
-      { type: 'Destroyer', coords: [[2, 4], [2, 5]] },
-      { type: 'Destroyer', coords: [[8, 2], [8, 3]] },
+      { type: 'Destroyer', coords: [[0, 8], [0, 9]] },
+      { type: 'Destroyer', coords: [[4, 2], [5, 2]] },
+      { type: 'Destroyer', coords: [[6, 8], [7, 8]] },
       // 4 ships of 1 cell
-      { type: 'Submarine', coords: [[0, 7]] },
-      { type: 'Submarine', coords: [[5, 5]] },
-      { type: 'Submarine', coords: [[9, 0]] },
+      { type: 'Submarine', coords: [[3, 4]] },
+      { type: 'Submarine', coords: [[6, 0]] },
+      { type: 'Submarine', coords: [[9, 6]] },
       { type: 'Submarine', coords: [[9, 9]] }
     ]
   },

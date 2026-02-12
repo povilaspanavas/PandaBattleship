@@ -43,7 +43,7 @@
       // 1 ship of 4 cells (Z-shape)
       { type: 'Battleship', coords: [[5, 5], [5, 6], [6, 6], [6, 7]] },
       // 2 ships of 3 cells
-      { type: 'Cruiser', coords: [[1, 1], [2, 1], [2, 2]] },
+      { type: 'Cruiser', coords: [[2, 1], [3, 1], [3, 2]] },
       { type: 'Cruiser', coords: [[8, 1], [8, 2], [9, 2]] },
       // 3 ships of 2 cells
       { type: 'Destroyer', coords: [[0, 3], [0, 4]] },

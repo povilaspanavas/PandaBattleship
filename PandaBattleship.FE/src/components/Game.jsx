@@ -1,4 +1,5 @@
-﻿import {useState} from 'react';
+﻿import {useState, useEffect} from 'react';
+import { SHIP_LAYOUTS } from '../constants/shipLayouts';
 
 const GRID_SIZE = 10;
 
@@ -8,47 +9,37 @@ const Game = () => {
         .fill(null)
         .map(() => Array(GRID_SIZE).fill(null));
 
-    const [playerGrid, setPlayerGrid] = useState(() => {
-        const newGrid = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(null));
-
-        // 1x4 ship
-        newGrid[0][0] = 'ship';
-        newGrid[0][1] = 'ship';
-        newGrid[1][1] = 'ship';
-        newGrid[1][2] = 'ship';
-
-        // 2x3 ships
-        newGrid[3][8] = 'ship';
-        newGrid[3][9] = 'ship';
-        newGrid[4][9] = 'ship';
-        newGrid[4][0] = 'ship';
-        newGrid[4][1] = 'ship';
-        newGrid[4][2] = 'ship';
-
-        // 3x2 ships
-        newGrid[6][0] = 'ship';
-        newGrid[6][1] = 'ship';
-        newGrid[8][1] = 'ship';
-        newGrid[9][1] = 'ship';
-        newGrid[0][5] = 'ship';
-        newGrid[0][6] = 'ship';
-
-        // 4x1 ships
-        newGrid[2][5] = 'ship';
-        newGrid[5][5] = 'ship';
-        newGrid[7][6] = 'ship';
-        newGrid[9][9] = 'ship';
-
-        return newGrid;
-    });
+    const [playerGrid, setPlayerGrid] = useState(createEmptyGrid());
     const [enemyGrid, setEnemyGrid] = useState(createEmptyGrid());
+    const [enemyShipLayout, setEnemyShipLayout] = useState(null);
+
+    useEffect(() => {
+        // Initialize Player Grid
+        const playerLayoutIdx = Math.floor(Math.random() * SHIP_LAYOUTS.length);
+        const playerLayout = SHIP_LAYOUTS[playerLayoutIdx];
+        const newPlayerGrid = createEmptyGrid();
+        playerLayout.ships.forEach(ship => {
+            ship.coords.forEach(([r, c]) => {
+                newPlayerGrid[r][c] = 'ship';
+            });
+        });
+        setPlayerGrid(newPlayerGrid);
+
+        // Initialize Enemy Layout (hidden)
+        const enemyLayoutIdx = Math.floor(Math.random() * SHIP_LAYOUTS.length);
+        setEnemyShipLayout(SHIP_LAYOUTS[enemyLayoutIdx]);
+    }, []);
 
     const handleEnemyCellClick = (row, col) => {
-        if (enemyGrid[row][col] !== null) return;
+        if (enemyGrid[row][col] !== null || !enemyShipLayout) return;
 
         const newGrid = [...enemyGrid.map(r => [...r])];
-        // For now, let's say it's a hit if row + col is even (just for demo)
-        const isHit = (row + col) % 2 === 0;
+        
+        // Check if hit
+        const isHit = enemyShipLayout.ships.some(ship => 
+            ship.coords.some(([r, c]) => r === row && c === col)
+        );
+        
         newGrid[row][col] = isHit ? 'hit' : 'miss';
         setEnemyGrid(newGrid);
     };

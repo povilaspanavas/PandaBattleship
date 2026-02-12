@@ -34,12 +34,12 @@ const Game = () => {
         if (enemyGrid[row][col] !== null || !enemyShipLayout) return;
 
         const newGrid = [...enemyGrid.map(r => [...r])];
-        
+
         // Check if hit
-        const isHit = enemyShipLayout.ships.some(ship => 
+        const isHit = enemyShipLayout.ships.some(ship =>
             ship.coords.some(([r, c]) => r === row && c === col)
         );
-        
+
         newGrid[row][col] = isHit ? 'hit' : 'miss';
         setEnemyGrid(newGrid);
     };
@@ -59,7 +59,7 @@ const Game = () => {
                             }`}
                             onClick={() => onCellClick && onCellClick(rowIndex, colIndex)}
                         >
-                            {cell === 'hit' ? 'X' : cell === 'miss' ? 'O' : ''}
+                            {cell === 'hit' ? '🔥' : cell === 'miss' ? 'O' : ''}
                         </span>
                     ))
                 )}

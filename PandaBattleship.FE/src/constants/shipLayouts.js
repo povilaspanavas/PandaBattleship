@@ -55,5 +55,62 @@
       { type: 'Submarine', coords: [[5, 2]] },
       { type: 'Submarine', coords: [[9, 9]] }
     ]
+  },
+  {
+    name: "Lithuanian Perimeter",
+    ships: [
+      // 1 ship of 4 cells (Square)
+      { type: 'Battleship', coords: [[0, 0], [0, 1], [1, 0], [1, 1]] },
+      // 2 ships of 3 cells
+      { type: 'Cruiser', coords: [[0, 4], [0, 5], [0, 6]] },
+      { type: 'Cruiser', coords: [[0, 9], [1, 9], [2, 9]] },
+      // 3 ships of 2 cells
+      { type: 'Destroyer', coords: [[4, 0], [5, 0]] },
+      { type: 'Destroyer', coords: [[9, 0], [9, 1]] },
+      { type: 'Destroyer', coords: [[9, 5], [9, 6]] },
+      // 4 ships of 1 cell
+      { type: 'Submarine', coords: [[4, 4]] },
+      { type: 'Submarine', coords: [[4, 7]] },
+      { type: 'Submarine', coords: [[7, 4]] },
+      { type: 'Submarine', coords: [[7, 9]] }
+    ]
+  },
+  {
+    name: "Lithuanian Snake",
+    ships: [
+      // 1 ship of 4 cells (Z-shape)
+      { type: 'Battleship', coords: [[2, 2], [3, 2], [3, 3], [4, 3]] },
+      // 2 ships of 3 cells
+      { type: 'Cruiser', coords: [[0, 0], [1, 0], [2, 0]] },
+      { type: 'Cruiser', coords: [[6, 6], [6, 7], [7, 7]] }, // L-shape
+      // 3 ships of 2 cells
+      { type: 'Destroyer', coords: [[0, 5], [0, 6]] },
+      { type: 'Destroyer', coords: [[4, 0], [5, 0]] },
+      { type: 'Destroyer', coords: [[9, 3], [9, 4]] },
+      // 4 ships of 1 cell
+      { type: 'Submarine', coords: [[0, 3]] },
+      { type: 'Submarine', coords: [[2, 5]] },
+      { type: 'Submarine', coords: [[4, 6]] },
+      { type: 'Submarine', coords: [[8, 1]] }
+    ]
+  },
+  {
+    name: "Lithuanian Scattered",
+    ships: [
+      // 1 ship of 4 cells (L-shape)
+      { type: 'Battleship', coords: [[1, 1], [2, 1], [2, 2], [2, 3]] },
+      // 2 ships of 3 cells
+      { type: 'Cruiser', coords: [[5, 1], [6, 1], [7, 1]] },
+      { type: 'Cruiser', coords: [[1, 5], [1, 6], [2, 6]] }, // L-shape
+      // 3 ships of 2 cells
+      { type: 'Destroyer', coords: [[4, 4], [4, 5]] },
+      { type: 'Destroyer', coords: [[7, 4], [8, 4]] },
+      { type: 'Destroyer', coords: [[4, 8], [5, 8]] },
+      // 4 ships of 1 cell
+      { type: 'Submarine', coords: [[0, 9]] },
+      { type: 'Submarine', coords: [[9, 0]] },
+      { type: 'Submarine', coords: [[9, 9]] },
+      { type: 'Submarine', coords: [[7, 7]] }
+    ]
   }
 ];

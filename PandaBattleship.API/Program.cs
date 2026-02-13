@@ -26,8 +26,8 @@ app.UseHttpsRedirection();
 
 app.MapGet("/db-check", async (Npgsql.NpgsqlDataSource dataSource) =>
 {
-    using var connection = await dataSource.OpenConnectionAsync();
-    using var command = connection.CreateCommand();
+    await using var connection = await dataSource.OpenConnectionAsync();
+    await using var command = connection.CreateCommand();
     command.CommandText = "CREATE TABLE IF NOT EXISTS test_table (id SERIAL PRIMARY KEY, name TEXT); INSERT INTO test_table (name) VALUES ('Test ' || now()); SELECT COUNT(*) FROM test_table;";
     var count = await command.ExecuteScalarAsync();
     return Results.Ok(new { Message = "Connected to DB!", RowCount = count });
@@ -35,4 +35,5 @@ app.MapGet("/db-check", async (Npgsql.NpgsqlDataSource dataSource) =>
 
 app.Run();
 
+// ReSharper disable once ClassNeverInstantiated.Global
 public partial class Program { }

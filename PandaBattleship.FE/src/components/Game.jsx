@@ -4,7 +4,7 @@ import { SHIP_LAYOUTS } from '../constants/shipLayouts';
 import { createEmptyGrid, findSunkenShip, markSunkShipOnGrid, GRID_SIZE } from '../utils/gameHelpers';
 import Grid from './Grid';
 
-const fakeTimeoutToSimulateEnemyChoosingTarget = 500;
+const fakeTimeoutToSimulateEnemyChoosingTarget = 800;
 
 const Game = () => {
 
@@ -88,11 +88,9 @@ const Game = () => {
         let localTargetStack = [...aiTargetStack]; // Local copy for synchronous updates
 
         while (continueAi) {
-            // Wait for "thinking"
-            await new Promise(resolve => setTimeout(resolve, fakeTimeoutToSimulateEnemyChoosingTarget));
-
             console.log('=== Starting AI shot iteration ===');
             console.log('Local target stack:', JSON.stringify(localTargetStack));
+            await new Promise(resolve => setTimeout(resolve, fakeTimeoutToSimulateEnemyChoosingTarget));
 
             // Variables to capture results from setState
             let wasHit = false;

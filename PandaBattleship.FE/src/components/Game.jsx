@@ -18,7 +18,6 @@ const Game = () => {
     const [isGameOver, setIsGameOver] = useState(false);
     const [enemyDeadShips, setEnemyDeadShips] = useState(0);
     const [didPlayerWin, setDidPlayerWin] = useState(false);
-    const [showRage, setShowRage] = useState(false);
 
     function startNewGame() {
         // Reset refs used during AI turn loop
@@ -31,7 +30,6 @@ const Game = () => {
         setIsGameOver(false);
         setEnemyDeadShips(0);
         setDidPlayerWin(false);
-        setShowRage(false);
 
         // Initialize Player Grid
         const playerLayoutIdx = Math.floor(Math.random() * SHIP_LAYOUTS.length);
@@ -56,12 +54,6 @@ const Game = () => {
         setEnemyShipLayout(enemyLayout);
         setEnemyGrid(createEmptyGrid());
     }
-
-    useEffect(() => {
-        if (isGameOver && !didPlayerWin) {
-            setShowRage(true);
-        }
-    }, [isGameOver, didPlayerWin]);
 
     // Ref to track target stack synchronously during AI turn loop
     const aiTargetStackRef = useRef([]);
@@ -196,8 +188,8 @@ const Game = () => {
 
                 <div className="flex flex-col items-center">
                     <Grid grid={enemyGrid} onCellClick={handleEnemyCellClick} />
-                    {showRage && (
-                        <PandaRage onComplete={() => setShowRage(false)} />
+                    {isGameOver && !didPlayerWin && (
+                        <PandaRage />
                     )}
                 </div>
 

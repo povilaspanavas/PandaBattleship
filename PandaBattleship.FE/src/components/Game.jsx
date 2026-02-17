@@ -3,6 +3,8 @@ import { SHIP_LAYOUTS } from '../constants/shipLayouts';
 import { createEmptyGrid, findSunkenShip, markSunkShipOnGrid, GRID_SIZE } from '../utils/gameHelpers';
 import Grid from './Grid';
 
+const fakeTimeoutToSimulateEnemyChoosingTarget = 500;
+
 const Game = () => {
 
     const [playerGrid, setPlayerGrid] = useState(createEmptyGrid());
@@ -36,7 +38,7 @@ const Game = () => {
 
         while (continueAi) {
             // Wait for "thinking"
-            await new Promise(resolve => setTimeout(resolve, 800));
+            await new Promise(resolve => setTimeout(resolve, fakeTimeoutToSimulateEnemyChoosingTarget));
 
             let hit = false;
             let noSpots = false;
@@ -111,18 +113,23 @@ const Game = () => {
     };
 
     return (
-        <div className="flex flex-col items-center gap-8 p-4">
-            <div className={`text-2xl font-bold p-4 rounded-lg transition-colors ${isPlayerTurn ? 'text-green-400 bg-green-900/20' : 'text-red-400 bg-red-900/20'}`}>
-                {isPlayerTurn ? "Your Turn" : "Enemy is Attacking..."}
+        <div className="flex flex-col items-center gap-1">
+            <div className="flex flex-row items-center gap-4 pb-1">
+                <div className={`text-l font-semibold p-1 rounded-full transition-colors tracking-wide px-2 py-1 rounded-full flex items-center gap-2
+                    ${isPlayerTurn 
+                        ? ' bg-blue-200 text-cyan-700 ' 
+                            : 'bg-rose-100 text-rose-700 font-semibold tracking-wide animate-pulse'}`}>
+                        {isPlayerTurn ? "Aiming..." : "Enemy Attacking..."}
+                </div>
+                <h2 className="text-l gap-2 py-1 px-1 rounded-full bg-white shadow-sm font-poppins font-semibold text-gray-500">🎯 Enemy Waters</h2>
             </div>
 
             <div className="flex flex-col items-center">
-                <h2 className="text-xl mb-2 text-red-400">Enemy Waters</h2>
                 <Grid grid={enemyGrid} onCellClick={handleEnemyCellClick} />
             </div>
 
-            <div className="flex flex-col items-center">
-                <h2 className="text-xl mb-2 text-green-400">Your Fleet</h2>
+            <div className="flex flex-col gap-1 items-center">
+                <h2 className="text-l gap-2 py-1 px-1 rounded-full bg-white shadow-sm font-poppins font-semibold text-gray-500">🚢 Your Fleet</h2>
                 <Grid grid={playerGrid} onCellClick={null} isPlayerGrid={true} />
             </div>
 

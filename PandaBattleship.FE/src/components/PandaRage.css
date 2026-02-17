@@ -1,0 +1,46 @@
+﻿.rage-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+}
+
+.rage-flash {
+    position: absolute;
+    inset: 0;
+    background: red;
+    opacity: 0.4;
+    animation: flashFade 4.5s ease-out forwards;
+}
+
+@keyframes flashFade {
+    from { opacity: 0.5; }
+    to { opacity: 0; }
+}
+
+.rage-panda {
+    position: relative;
+    top: 45%;
+    left: 50%;
+    font-size: 220px;
+    transform: translate(-50%, -150%) scale(0.5);
+    animation: pandaSlam 0.8s ease-out forwards;
+}
+
+.rage-message {
+    position: relative;
+    top: 35%;
+    left: 2%;
+}
+
+@keyframes pandaSlam {
+    0% {
+        transform: translate(-50%, -150%) scale(0.5);
+    }
+    70% {
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+}

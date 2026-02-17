@@ -2,7 +2,9 @@
 import { SHIP_LAYOUTS } from '../constants/shipLayouts';
 import { createEmptyGrid, findSunkenShip, markSunkShipOnGrid } from '../utils/gameHelpers';
 import { processAiShot, AI_SHOT_DELAY } from '../utils/aiPlayer';
+import Confetti from 'react-confetti'
 import Grid from './Grid';
+import PandaRage from "./PandaRage.jsx";
 
 
 const Game = () => {
@@ -13,14 +15,28 @@ const Game = () => {
     const [playerShipLayout, setPlayerShipLayout] = useState(null);
     const [isPlayerTurn, setIsPlayerTurn] = useState(true);
     const [aiShotHistory, setAiShotHistory] = useState([]);
+    const [isGameOver, setIsGameOver] = useState(false);
+    const [enemyDeadShips, setEnemyDeadShips] = useState(0);
+    const [didPlayerWin, setDidPlayerWin] = useState(false);
+    const [showRage, setShowRage] = useState(false);
+
+    useEffect(() => {
+        if (isGameOver && !didPlayerWin) {
+            setShowRage(true);
+        }
+    }, [isGameOver, didPlayerWin]);
 
     // Ref to track target stack synchronously during AI turn loop
     const aiTargetStackRef = useRef([]);
+    // Ref to track player dead ships count synchronously during AI turn loop
+    const playerDeadShipsRef = useRef(0);
 
     useEffect(() => {
         // Initialize Player Grid
         const playerLayoutIdx = Math.floor(Math.random() * SHIP_LAYOUTS.length);
         const playerLayout = SHIP_LAYOUTS[playerLayoutIdx];
+        console.log('Initializing game with player layout:', playerLayout.name);
+        console.log('Player has', playerLayout.ships.length, 'ships');
         setPlayerShipLayout(playerLayout);
         const newPlayerGrid = createEmptyGrid();
         playerLayout.ships.forEach(ship => {
@@ -32,11 +48,15 @@ const Game = () => {
 
         // Initialize Enemy Layout (hidden)
         const enemyLayoutIdx = Math.floor(Math.random() * SHIP_LAYOUTS.length);
-        setEnemyShipLayout(SHIP_LAYOUTS[enemyLayoutIdx]);
+        const enemyLayout = SHIP_LAYOUTS[enemyLayoutIdx];
+        console.log('Enemy layout:', enemyLayout.name);
+        console.log('Enemy has', enemyLayout.ships.length, 'ships');
+        setEnemyShipLayout(enemyLayout);
     }, []);
 
 
     const performAiTurn = async () => {
+        if (isGameOver) return;
         setIsPlayerTurn(false);
         let continueAi = true;
         let currentGrid = playerGrid; // Local variable to track grid state through the loop
@@ -69,15 +89,27 @@ const Game = () => {
 
             // Continue if we hit something
             continueAi = shotResult.isHit;
-        }
 
-        console.log('=== AI turn ending ===');
-        console.log('Final stack:', JSON.stringify(aiTargetStackRef.current));
+            // Check if ship sunk (processAiShot already marks it as sunk on the grid)
+            if (shotResult.shipSunk) {
+                playerDeadShipsRef.current += 1;
+                const newCount = playerDeadShipsRef.current;
+
+                if (newCount === 10) {
+                    console.log('PLAYER LOST! All 10 ships sunk - Setting game over status');
+                    setIsGameOver(true);
+                    setDidPlayerWin(false);
+                    continueAi = false;
+                    break;
+                }
+            }
+        }
 
         setIsPlayerTurn(true);
     };
 
     const handleEnemyCellClick = (row, col) => {
+        if (isGameOver) return;
         if (!isPlayerTurn || enemyGrid[row][col] !== null || !enemyShipLayout) return;
 
         let newGrid = [...enemyGrid.map(r => [...r])];
@@ -93,9 +125,20 @@ const Game = () => {
         const sunkenShip = findSunkenShip(newGrid, enemyShipLayout);
         if (sunkenShip) {
             newGrid = markSunkShipOnGrid(newGrid, sunkenShip);
-        }
+            const newDeadCount = enemyDeadShips + 1;
+            setEnemyDeadShips(newDeadCount);
+            setEnemyGrid(newGrid);
 
-        setEnemyGrid(newGrid);
+            if (newDeadCount === 10) {
+                setIsGameOver(true);
+                setDidPlayerWin(true);
+
+                return; // Don't trigger AI turn
+            }
+        }
+        else {
+            setEnemyGrid(newGrid);
+        }
 
         if (!isHit) {
             setIsPlayerTurn(false);
@@ -105,30 +148,49 @@ const Game = () => {
     };
 
     return (
-        <div className="flex flex-col items-center gap-1">
-            <div className="flex flex-row items-center gap-4 pb-1">
-                <div className={`text-l font-semibold px-2 py-1 gap-2 rounded-full transition-colors tracking-wide flex items-center 
-                    ${isPlayerTurn 
-                        ? ' bg-blue-200 text-cyan-700 ' 
-                            : 'bg-rose-100 text-rose-700 font-semibold tracking-wide animate-pulse'}`}>
-                        {isPlayerTurn ? "Aiming..." : "Enemy Attacking..."}
+        <>
+
+
+            {didPlayerWin && (
+                <Confetti />
+            )}
+            <div className="flex flex-col items-center gap-1">
+                <div className="flex flex-row items-center gap-4 pb-1">
+                    { !isGameOver && <div className={`text-l font-semibold px-2 py-1 gap-2 rounded-full transition-colors tracking-wide flex items-center 
+                        ${isPlayerTurn 
+                            ? ' bg-blue-200 text-cyan-700 ' 
+                                : 'bg-rose-100 text-rose-700 font-semibold tracking-wide animate-pulse'}`}>
+                            {isPlayerTurn ? "Aiming..." : "Enemy Attacking..."}
+                        </div>
+                    }
+
+                    { // add a new game button
+                        isGameOver &&
+                        <buttons className="text-l gap-2 py-1 px-1 rounded-full bg-amber-100 shadow-sm font-poppins font-semibold text-cyan-600">New Game</buttons>
+                    }
+                    <h2 className="text-l gap-2 py-1 px-1 rounded-full bg-white shadow-sm font-poppins font-semibold text-gray-500">🎯 Enemy Waters</h2>
                 </div>
-                <h2 className="text-l gap-2 py-1 px-1 rounded-full bg-white shadow-sm font-poppins font-semibold text-gray-500">🎯 Enemy Waters</h2>
-            </div>
 
-            <div className="flex flex-col items-center">
-                <Grid grid={enemyGrid} onCellClick={handleEnemyCellClick} />
-            </div>
+                <div className="flex flex-col items-center">
+                    <Grid grid={enemyGrid} onCellClick={handleEnemyCellClick} />
+                    {showRage && (
+                        <PandaRage />
+                    )}
+                </div>
 
-            <div className="flex flex-col gap-1 items-center">
-                <h2 className="text-l gap-2 py-1 px-1 rounded-full bg-white shadow-sm font-poppins font-semibold text-gray-500">🚢 Your Fleet</h2>
-                <Grid grid={playerGrid} onCellClick={null} isPlayerGrid={true} />
-            </div>
+                <div className="flex flex-col gap-1 items-center">
+                    <h2 className="text-l gap-2 py-1 px-1 rounded-full bg-white shadow-sm font-poppins font-semibold text-gray-500">🚢 Your Fleet</h2>
+                    <Grid grid={playerGrid} onCellClick={null} isPlayerGrid={true} />
+                </div>
 
-            <div className="text-xs text-gray-500 max-h-24 overflow-y-auto">
-                AI Shot History: {aiShotHistory.map((s, i) => `${i+1}: ${s.isHit ? '🔥' : 'O'} (${s.row},${s.col}) `)}
+                <div className="text-xs text-gray-500 max-h-24 overflow-y-auto">
+                    AI Shot History: {aiShotHistory.map((s, i) => `${i+1}: ${s.isHit ? '🔥' : 'O'} (${s.row},${s.col}) `)}
+                </div>
             </div>
-        </div>
+            {showRage && (
+                <PandaRage />
+            )}
+        </>
     );
 };
 

@@ -115,7 +115,7 @@ const Game = () => {
     return (
         <div className="flex flex-col items-center gap-1">
             <div className="flex flex-row items-center gap-4 pb-1">
-                <div className={`text-l font-semibold p-1 rounded-full transition-colors tracking-wide px-2 py-1 rounded-full flex items-center gap-2
+                <div className={`text-l font-semibold px-2 py-1 gap-2 rounded-full transition-colors tracking-wide flex items-center 
                     ${isPlayerTurn 
                         ? ' bg-blue-200 text-cyan-700 ' 
                             : 'bg-rose-100 text-rose-700 font-semibold tracking-wide animate-pulse'}`}>

@@ -96,11 +96,13 @@ export const processAiShot = (grid, targetStack, shipLayout) => {
         console.log('Removed targeted shot from stack');
     }
 
+    let shipSunk = false;
     if (isHit) {
         const sunkenShip = findSunkenShip(newGrid, shipLayout);
         if (sunkenShip) {
             newGrid = markSunkShipOnGrid(newGrid, sunkenShip);
             updatedStack = [];
+            shipSunk = true;
             console.log('Ship sunk! Clearing stack.');
         } else {
             const adjacentTargets = getAdjacentTargets(r, c, newGrid);
@@ -115,7 +117,7 @@ export const processAiShot = (grid, targetStack, shipLayout) => {
     return {
         newGrid,
         updatedStack,
-        shotResult: { row: r, col: c, isHit },
+        shotResult: { row: r, col: c, isHit, shipSunk },
         noSpotsAvailable: false
     };
 };

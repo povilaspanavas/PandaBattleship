@@ -2,7 +2,7 @@
 import { flushSync } from 'react-dom';
 import { SHIP_LAYOUTS } from '../constants/shipLayouts';
 import { createEmptyGrid, findSunkenShip, markSunkShipOnGrid } from '../utils/gameHelpers';
-import { getAdjacentTargets, selectNextAiShot, AI_SHOT_DELAY } from '../utils/aiPlayer';
+import { processAiShot, AI_SHOT_DELAY } from '../utils/aiPlayer';
 import Grid from './Grid';
 
 
@@ -52,50 +52,19 @@ const Game = () => {
 
             flushSync(() => {
                 setPlayerGrid(prevGrid => {
-                    // Select target within setState to ensure we have current grid
-                    const target = selectNextAiShot(prevGrid, localTargetStack);
+                    const result = processAiShot(prevGrid, localTargetStack, playerShipLayout);
 
-                    if (!target) {
+                    if (result.noSpotsAvailable) {
                         console.log('No targets available, ending AI turn');
                         noSpotsAvailable = true;
                         return prevGrid;
                     }
 
-                    const [r, c] = target;
-                    const isHit = prevGrid[r][c] === 'ship';
-                    wasHit = isHit;
+                    const { newGrid, updatedStack: newStack, shotResult } = result;
+                    wasHit = shotResult.isHit;
+                    updatedStack = newStack;
 
-                    console.log(`AI shooting at (${r},${c}), is ship: ${isHit}`);
-
-                    let newGrid = prevGrid.map(row => [...row]);
-                    newGrid[r][c] = isHit ? 'hit' : 'miss';
-
-                    setAiShotHistory(prev => [...prev, { row: r, col: c, isHit }]);
-
-                    // Update the local stack copy
-                    updatedStack = [...localTargetStack];
-
-                    // If this was a targeted shot, remove it from stack
-                    if (updatedStack.length > 0 && updatedStack[updatedStack.length - 1][0] === r && updatedStack[updatedStack.length - 1][1] === c) {
-                        updatedStack.pop();
-                        console.log('Removed targeted shot from stack');
-                    }
-
-                    if (isHit) {
-                        const sunkenShip = findSunkenShip(newGrid, playerShipLayout);
-                        if (sunkenShip) {
-                            newGrid = markSunkShipOnGrid(newGrid, sunkenShip);
-                            updatedStack = [];
-                            console.log('Ship sunk! Clearing stack.');
-                        } else {
-                            const adjacentTargets = getAdjacentTargets(r, c, newGrid);
-                            console.log('Hit but not sunk. Adding adjacent targets:', adjacentTargets);
-                            updatedStack.push(...adjacentTargets);
-                        }
-                    }
-
-                    console.log('Stack after update:', JSON.stringify(updatedStack));
-                    console.log('Was hit:', wasHit, 'Continue:', wasHit);
+                    setAiShotHistory(prev => [...prev, shotResult]);
 
                     return newGrid;
                 });

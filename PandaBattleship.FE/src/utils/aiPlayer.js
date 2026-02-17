@@ -1,4 +1,4 @@
-﻿import { GRID_SIZE } from './gameHelpers';
+﻿import { GRID_SIZE, findSunkenShip, markSunkShipOnGrid } from './gameHelpers';
 
 /**
  * Delay in milliseconds before AI takes each shot
@@ -62,4 +62,60 @@ export const selectNextAiShot = (grid, targetStack) => {
     }
 
     return availableSpots[Math.floor(Math.random() * availableSpots.length)];
+};
+
+/**
+ * Process a single AI shot and return the updated game state
+ * @param {Array} grid - The current player grid
+ * @param {Array} targetStack - Current target stack
+ * @param {Object} shipLayout - Player ship layout for sunk ship detection
+ * @returns {Object} Object with {newGrid, updatedStack, shotResult: {row, col, isHit}, noSpotsAvailable}
+ */
+export const processAiShot = (grid, targetStack, shipLayout) => {
+    // Select target
+    const target = selectNextAiShot(grid, targetStack);
+
+    if (!target) {
+        console.log('No targets available, ending AI turn');
+        return { noSpotsAvailable: true };
+    }
+
+    const [r, c] = target;
+    const isHit = grid[r][c] === 'ship';
+
+    console.log(`AI shooting at (${r},${c}), is ship: ${isHit}`);
+
+    let newGrid = grid.map(row => [...row]);
+    newGrid[r][c] = isHit ? 'hit' : 'miss';
+
+    let updatedStack = [...targetStack];
+
+    // If this was a targeted shot, remove it from stack
+    if (updatedStack.length > 0 && updatedStack[updatedStack.length - 1][0] === r && updatedStack[updatedStack.length - 1][1] === c) {
+        updatedStack.pop();
+        console.log('Removed targeted shot from stack');
+    }
+
+    if (isHit) {
+        const sunkenShip = findSunkenShip(newGrid, shipLayout);
+        if (sunkenShip) {
+            newGrid = markSunkShipOnGrid(newGrid, sunkenShip);
+            updatedStack = [];
+            console.log('Ship sunk! Clearing stack.');
+        } else {
+            const adjacentTargets = getAdjacentTargets(r, c, newGrid);
+            console.log('Hit but not sunk. Adding adjacent targets:', adjacentTargets);
+            updatedStack.push(...adjacentTargets);
+        }
+    }
+
+    console.log('Stack after update:', JSON.stringify(updatedStack));
+    console.log('Was hit:', isHit, 'Continue:', isHit);
+
+    return {
+        newGrid,
+        updatedStack,
+        shotResult: { row: r, col: c, isHit },
+        noSpotsAvailable: false
+    };
 };

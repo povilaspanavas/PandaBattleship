@@ -1,10 +1,10 @@
 ﻿import {useState, useEffect} from 'react';
 import { flushSync } from 'react-dom';
 import { SHIP_LAYOUTS } from '../constants/shipLayouts';
-import { createEmptyGrid, findSunkenShip, markSunkShipOnGrid, GRID_SIZE } from '../utils/gameHelpers';
+import { createEmptyGrid, findSunkenShip, markSunkShipOnGrid } from '../utils/gameHelpers';
+import { getAdjacentTargets, selectNextAiShot, AI_SHOT_DELAY } from '../utils/aiPlayer';
 import Grid from './Grid';
 
-const fakeTimeoutToSimulateEnemyChoosingTarget = 800;
 
 const Game = () => {
 
@@ -34,53 +34,6 @@ const Game = () => {
         setEnemyShipLayout(SHIP_LAYOUTS[enemyLayoutIdx]);
     }, []);
 
-    // Helper: Get orthogonal adjacent cells that haven't been shot yet
-    const getAdjacentTargets = (row, col, grid) => {
-        const targets = [];
-        const directions = [
-            [-1, 0], // up
-            [1, 0],  // down
-            [0, -1], // left
-            [0, 1]   // right
-        ];
-
-        for (const [dr, dc] of directions) {
-            const r = row + dr;
-            const c = col + dc;
-            // Check if in bounds and not yet shot
-            if (r >= 0 && r < GRID_SIZE && c >= 0 && c < GRID_SIZE) {
-                if (grid[r][c] === null || grid[r][c] === 'ship') {
-                    targets.push([r, c]);
-                }
-            }
-        }
-
-        return targets;
-    };
-
-    // Helper: Select next AI shot (from target stack or random)
-    const selectNextAiShot = (grid, targetStack) => {
-        // If we have targets in hunt mode, use LIFO (pop from stack)
-        if (targetStack.length > 0) {
-            return targetStack[targetStack.length - 1]; // peek at top of stack
-        }
-
-        // Otherwise, pick random available spot
-        const availableSpots = [];
-        for (let r = 0; r < GRID_SIZE; r++) {
-            for (let c = 0; c < GRID_SIZE; c++) {
-                if (grid[r][c] === null || grid[r][c] === 'ship') {
-                    availableSpots.push([r, c]);
-                }
-            }
-        }
-
-        if (availableSpots.length === 0) {
-            return null;
-        }
-
-        return availableSpots[Math.floor(Math.random() * availableSpots.length)];
-    };
 
     const performAiTurn = async () => {
         setIsPlayerTurn(false); // Ensure UI shows enemy attacking throughout
@@ -90,7 +43,7 @@ const Game = () => {
         while (continueAi) {
             console.log('=== Starting AI shot iteration ===');
             console.log('Local target stack:', JSON.stringify(localTargetStack));
-            await new Promise(resolve => setTimeout(resolve, fakeTimeoutToSimulateEnemyChoosingTarget));
+            await new Promise(resolve => setTimeout(resolve, AI_SHOT_DELAY));
 
             // Variables to capture results from setState
             let wasHit = false;

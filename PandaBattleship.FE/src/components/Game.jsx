@@ -20,24 +20,26 @@ const Game = () => {
     const [didPlayerWin, setDidPlayerWin] = useState(false);
     const [showRage, setShowRage] = useState(false);
 
-    useEffect(() => {
-        if (isGameOver && !didPlayerWin) {
-            setShowRage(true);
-        }
-    }, [isGameOver, didPlayerWin]);
+    function startNewGame() {
+        // Reset refs used during AI turn loop
+        aiTargetStackRef.current = [];
+        playerDeadShipsRef.current = 0;
 
-    // Ref to track target stack synchronously during AI turn loop
-    const aiTargetStackRef = useRef([]);
-    // Ref to track player dead ships count synchronously during AI turn loop
-    const playerDeadShipsRef = useRef(0);
+        // Reset state to initial values
+        setIsPlayerTurn(true);
+        setAiShotHistory([]);
+        setIsGameOver(false);
+        setEnemyDeadShips(0);
+        setDidPlayerWin(false);
+        setShowRage(false);
 
-    useEffect(() => {
         // Initialize Player Grid
         const playerLayoutIdx = Math.floor(Math.random() * SHIP_LAYOUTS.length);
         const playerLayout = SHIP_LAYOUTS[playerLayoutIdx];
         console.log('Initializing game with player layout:', playerLayout.name);
         console.log('Player has', playerLayout.ships.length, 'ships');
         setPlayerShipLayout(playerLayout);
+
         const newPlayerGrid = createEmptyGrid();
         playerLayout.ships.forEach(ship => {
             ship.coords.forEach(([r, c]) => {
@@ -52,6 +54,22 @@ const Game = () => {
         console.log('Enemy layout:', enemyLayout.name);
         console.log('Enemy has', enemyLayout.ships.length, 'ships');
         setEnemyShipLayout(enemyLayout);
+        setEnemyGrid(createEmptyGrid());
+    }
+
+    useEffect(() => {
+        if (isGameOver && !didPlayerWin) {
+            setShowRage(true);
+        }
+    }, [isGameOver, didPlayerWin]);
+
+    // Ref to track target stack synchronously during AI turn loop
+    const aiTargetStackRef = useRef([]);
+    // Ref to track player dead ships count synchronously during AI turn loop
+    const playerDeadShipsRef = useRef(0);
+
+    useEffect(() => {
+        startNewGame();
     }, []);
 
 
@@ -166,7 +184,12 @@ const Game = () => {
 
                     { // add a new game button
                         isGameOver &&
-                        <buttons className="text-l gap-2 py-1 px-1 rounded-full bg-amber-100 shadow-sm font-poppins font-semibold text-cyan-600">New Game</buttons>
+                        <button
+                            onClick={startNewGame}
+                            className="text-l gap-2 py-1 px-1 rounded-full bg-amber-300 hover:bg-amber-100
+                            shadow-sm font-poppins font-semibold text-cyan-700 hover:text-cyan-600 transition-colors">
+                            New Game
+                        </button>
                     }
                     <h2 className="text-l gap-2 py-1 px-1 rounded-full bg-white shadow-sm font-poppins font-semibold text-gray-500">🎯 Enemy Waters</h2>
                 </div>
@@ -174,7 +197,7 @@ const Game = () => {
                 <div className="flex flex-col items-center">
                     <Grid grid={enemyGrid} onCellClick={handleEnemyCellClick} />
                     {showRage && (
-                        <PandaRage />
+                        <PandaRage onComplete={() => setShowRage(false)} />
                     )}
                 </div>
 
@@ -187,9 +210,6 @@ const Game = () => {
                     AI Shot History: {aiShotHistory.map((s, i) => `${i+1}: ${s.isHit ? '🔥' : 'O'} (${s.row},${s.col}) `)}
                 </div>
             </div>
-            {showRage && (
-                <PandaRage />
-            )}
         </>
     );
 };

@@ -1,7 +1,6 @@
 ﻿.rage-overlay {
     position: fixed;
     inset: 0;
-    pointer-events: none;
     z-index: 999;
 }
 
@@ -30,7 +29,6 @@
 .rage-message {
     position: relative;
     top: 35%;
-    left: 2%;
 }
 
 @keyframes pandaSlam {

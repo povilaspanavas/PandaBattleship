@@ -1,9 +1,9 @@
-﻿import {useState, useEffect} from 'react';
+﻿import {useState, useEffect, useRef} from 'react';
 import { SHIP_LAYOUTS } from '../constants/shipLayouts';
-import { createEmptyGrid, findSunkenShip, markSunkShipOnGrid, GRID_SIZE } from '../utils/gameHelpers';
+import { createEmptyGrid, findSunkenShip, markSunkShipOnGrid } from '../utils/gameHelpers';
+import { processAiShot, AI_SHOT_DELAY } from '../utils/aiPlayer';
 import Grid from './Grid';
 
-const fakeTimeoutToSimulateEnemyChoosingTarget = 500;
 
 const Game = () => {
 
@@ -13,6 +13,9 @@ const Game = () => {
     const [playerShipLayout, setPlayerShipLayout] = useState(null);
     const [isPlayerTurn, setIsPlayerTurn] = useState(true);
     const [aiShotHistory, setAiShotHistory] = useState([]);
+
+    // Ref to track target stack synchronously during AI turn loop
+    const aiTargetStackRef = useRef([]);
 
     useEffect(() => {
         // Initialize Player Grid
@@ -34,54 +37,42 @@ const Game = () => {
 
 
     const performAiTurn = async () => {
+        setIsPlayerTurn(false);
         let continueAi = true;
+        let currentGrid = playerGrid; // Local variable to track grid state through the loop
 
         while (continueAi) {
-            // Wait for "thinking"
-            await new Promise(resolve => setTimeout(resolve, fakeTimeoutToSimulateEnemyChoosingTarget));
+            console.log('=== Starting AI shot iteration ===');
+            console.log('Target stack:', JSON.stringify(aiTargetStackRef.current));
 
-            let hit = false;
-            let noSpots = false;
+            await new Promise(resolve => setTimeout(resolve, AI_SHOT_DELAY));
 
-            setPlayerGrid(prevGrid => {
-                const availableSpots = [];
-                for (let r = 0; r < GRID_SIZE; r++) {
-                    for (let c = 0; c < GRID_SIZE; c++) {
-                        if (prevGrid[r][c] === null || prevGrid[r][c] === 'ship') {
-                            availableSpots.push([r, c]);
-                        }
-                    }
-                }
+            const result = processAiShot(currentGrid, aiTargetStackRef.current, playerShipLayout);
 
-                if (availableSpots.length === 0) {
-                    noSpots = true;
-                    return prevGrid;
-                }
-
-                const [r, c] = availableSpots[Math.floor(Math.random() * availableSpots.length)];
-                const isHit = prevGrid[r][c] === 'ship';
-                hit = isHit;
-
-                let newGrid = prevGrid.map(row => [...row]);
-                newGrid[r][c] = isHit ? 'hit' : 'miss';
-
-                setAiShotHistory(prev => [...prev, { row: r, col: c, isHit }]);
-
-                if (isHit) {
-                    const sunkenShip = findSunkenShip(newGrid, playerShipLayout);
-                    if (sunkenShip) {
-                        newGrid = markSunkShipOnGrid(newGrid, sunkenShip);
-                    }
-                }
-
-                return newGrid;
-            });
-
-            // If we hit nothing more to shoot or it was a miss, stop AI turn
-            if (noSpots || !hit) {
+            if (result.noSpotsAvailable) {
+                console.log('No targets available, ending AI turn');
                 continueAi = false;
+                break;
             }
+
+            const { newGrid, updatedStack, shotResult } = result;
+
+            // Update local grid for next iteration
+            currentGrid = newGrid;
+
+            // Update ref immediately for next iteration
+            aiTargetStackRef.current = updatedStack;
+
+            // Update state for UI (this will show each shot as it happens)
+            setPlayerGrid(newGrid);
+            setAiShotHistory(prev => [...prev, shotResult]);
+
+            // Continue if we hit something
+            continueAi = shotResult.isHit;
         }
+
+        console.log('=== AI turn ending ===');
+        console.log('Final stack:', JSON.stringify(aiTargetStackRef.current));
 
         setIsPlayerTurn(true);
     };
@@ -108,7 +99,8 @@ const Game = () => {
 
         if (!isHit) {
             setIsPlayerTurn(false);
-            performAiTurn();
+            performAiTurn()
+                .catch(err => console.error("AI turn failed", err));
         }
     };
 

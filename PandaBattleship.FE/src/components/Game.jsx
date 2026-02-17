@@ -1,5 +1,4 @@
-﻿import {useState, useEffect} from 'react';
-import { flushSync } from 'react-dom';
+﻿import {useState, useEffect, useRef} from 'react';
 import { SHIP_LAYOUTS } from '../constants/shipLayouts';
 import { createEmptyGrid, findSunkenShip, markSunkShipOnGrid } from '../utils/gameHelpers';
 import { processAiShot, AI_SHOT_DELAY } from '../utils/aiPlayer';
@@ -14,7 +13,9 @@ const Game = () => {
     const [playerShipLayout, setPlayerShipLayout] = useState(null);
     const [isPlayerTurn, setIsPlayerTurn] = useState(true);
     const [aiShotHistory, setAiShotHistory] = useState([]);
-    const [aiTargetStack, setAiTargetStack] = useState([]); // LIFO stack for hunt mode
+
+    // Ref to track target stack synchronously during AI turn loop
+    const aiTargetStackRef = useRef([]);
 
     useEffect(() => {
         // Initialize Player Grid
@@ -36,54 +37,43 @@ const Game = () => {
 
 
     const performAiTurn = async () => {
-        setIsPlayerTurn(false); // Ensure UI shows enemy attacking throughout
+        setIsPlayerTurn(false);
         let continueAi = true;
-        let localTargetStack = [...aiTargetStack]; // Local copy for synchronous updates
+        let currentGrid = playerGrid; // Local variable to track grid state through the loop
 
         while (continueAi) {
             console.log('=== Starting AI shot iteration ===');
-            console.log('Local target stack:', JSON.stringify(localTargetStack));
+            console.log('Target stack:', JSON.stringify(aiTargetStackRef.current));
+
             await new Promise(resolve => setTimeout(resolve, AI_SHOT_DELAY));
 
-            // Variables to capture results from setState
-            let wasHit = false;
-            let noSpotsAvailable = false;
-            let updatedStack = [...localTargetStack];
+            const result = processAiShot(currentGrid, aiTargetStackRef.current, playerShipLayout);
 
-            flushSync(() => {
-                setPlayerGrid(prevGrid => {
-                    const result = processAiShot(prevGrid, localTargetStack, playerShipLayout);
+            if (result.noSpotsAvailable) {
+                console.log('No targets available, ending AI turn');
+                continueAi = false;
+                break;
+            }
 
-                    if (result.noSpotsAvailable) {
-                        console.log('No targets available, ending AI turn');
-                        noSpotsAvailable = true;
-                        return prevGrid;
-                    }
+            const { newGrid, updatedStack, shotResult } = result;
 
-                    const { newGrid, updatedStack: newStack, shotResult } = result;
-                    wasHit = shotResult.isHit;
-                    updatedStack = newStack;
+            // Update local grid for next iteration
+            currentGrid = newGrid;
 
-                    setAiShotHistory(prev => [...prev, shotResult]);
+            // Update ref immediately for next iteration
+            aiTargetStackRef.current = updatedStack;
 
-                    return newGrid;
-                });
-            });
-
-            // Update local stack for next iteration
-            localTargetStack = updatedStack;
+            // Update state for UI (this will show each shot as it happens)
+            setPlayerGrid(newGrid);
+            setAiShotHistory(prev => [...prev, shotResult]);
 
             // Continue if we hit something
-            if (noSpotsAvailable || !wasHit) {
-                continueAi = false;
-            }
+            continueAi = shotResult.isHit;
         }
 
         console.log('=== AI turn ending ===');
-        console.log('Final stack:', JSON.stringify(localTargetStack));
+        console.log('Final stack:', JSON.stringify(aiTargetStackRef.current));
 
-        // Update the state with final stack value
-        setAiTargetStack(localTargetStack);
         setIsPlayerTurn(true);
     };
 

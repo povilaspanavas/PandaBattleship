@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@theme {
+  --font-poppins: Poppins, sans-serif;
+  --font-sans: Poppins, ui-sans-serif, system-ui;
+}
+
 @layer base {
   :root {
     @apply font-sans text-white bg-gray-900;

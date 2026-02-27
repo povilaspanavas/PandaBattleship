@@ -9,7 +9,10 @@ export default function App() {
                 <h1 className="font-bold text-3xl">Panda Battleship</h1>
                 <img src={pandaLogo} className="max-w-30" alt="Panda Battleship" />
             </div>
-            <Game />
+            <div className="select-none">
+                <Game />
+            </div>
+
             <div className="mt-20 w-full border-t border-gray-700 pt-10">
                 <DisplayAllLayouts />
             </div>

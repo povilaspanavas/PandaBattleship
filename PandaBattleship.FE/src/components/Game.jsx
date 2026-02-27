@@ -187,7 +187,7 @@ const Game = () => {
                 </div>
 
                 <div className="flex flex-col items-center">
-                    <Grid grid={enemyGrid} onCellClick={handleEnemyCellClick} />
+                    <Grid grid={enemyGrid} onCellClick={handleEnemyCellClick} waiting={!isPlayerTurn || isGameOver} />
                     {isGameOver && !didPlayerWin && (
                         <PandaRage />
                     )}
@@ -195,7 +195,7 @@ const Game = () => {
 
                 <div className="flex flex-col gap-1 items-center">
                     <h2 className="text-l gap-2 py-1 px-1 rounded-full bg-white shadow-sm font-poppins font-semibold text-gray-500">🚢 Your Fleet</h2>
-                    <Grid grid={playerGrid} onCellClick={null} isPlayerGrid={true} />
+                    <Grid grid={playerGrid} onCellClick={null} isPlayerGrid={true} disabled={true} />
                 </div>
 
                 <div className="text-xs text-gray-500 max-h-24 overflow-y-auto">

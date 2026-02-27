@@ -1,4 +1,5 @@
 ﻿import { SHIP_LAYOUTS } from '../constants/shipLayouts';
+import { memo } from 'react';
 
 const GRID_SIZE = 10;
 
@@ -42,4 +43,4 @@ const DisplayAllLayouts = () => {
     );
 };
 
-export default DisplayAllLayouts;
+export default memo(DisplayAllLayouts);

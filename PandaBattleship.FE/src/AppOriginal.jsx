@@ -1,8 +1,8 @@
-import Game from './components/Game';
+import GameOriginal from './components/GameOriginal.jsx';
 import DisplayAllLayouts from './components/DisplayAllLayouts';
 import pandaLogo from './assets/brave_panda_1024.png'
 
-export default function App() {
+export default function AppOriginal() {
     return (
         <div className="max-w-5xl mx-auto p-1 text-center min-h-screen flex flex-col items-center">
             <div className="flex items-center gap-2">
@@ -10,7 +10,7 @@ export default function App() {
                 <img src={pandaLogo} className="max-w-30" alt="Panda Battleship" />
             </div>
             <div className="select-none">
-                <Game />
+                <GameOriginal />
             </div>
 
             <div className="mt-20 w-full border-t border-gray-700 pt-10">

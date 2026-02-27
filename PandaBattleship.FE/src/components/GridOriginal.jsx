@@ -1,4 +1,4 @@
-﻿const Grid = ({ grid, onCellClick, isPlayerGrid = false, disabled = false, waiting = false }) => {
+﻿const GridOriginal = ({ grid, onCellClick, isPlayerGrid = false, disabled = false, waiting = false }) => {
     const cursorType = disabled ? 'cursor-not-allowed'
         : waiting ? 'cursor-wait' : 'cursor-pointer hover:bg-gray-700';
     return (
@@ -25,4 +25,4 @@
     );
 };
 
-export default Grid;
+export default GridOriginal;

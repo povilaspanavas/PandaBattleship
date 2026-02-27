@@ -13,18 +13,16 @@ var api =
     builder
         .AddProject<Projects.PandaBattleship_API>("PandaBattleshipApi")
         .WithReference(db)
+        .WithHttpsEndpoint()
         .WaitFor(db)
         .WithHttpHealthCheck("health")
-        .ConfigureCustomUrls();
+        .ConfigureApiCustomUrls();
 
 builder.AddNpmApp("PandaBattleshipFe", "../PandaBattleship.FE")
     .WithHttpEndpoint(env: "PORT")
     .WithExternalHttpEndpoints()
     .WithReference(api)
-    .WithUrlForEndpoint("http", x =>
-    {
-        x.DisplayText = "FE (http)";
-        x.DisplayOrder = 100;
-    });
+    .ConfigureFeCustomUrls();
+
 
 builder.Build().Run();

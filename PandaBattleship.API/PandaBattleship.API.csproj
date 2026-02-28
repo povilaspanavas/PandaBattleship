@@ -17,4 +17,10 @@
     <ProjectReference Include="..\PandaBattleship.ServiceDefaults\PandaBattleship.ServiceDefaults.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="Constants\ShipLayouts.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

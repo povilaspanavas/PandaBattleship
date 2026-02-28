@@ -1,34 +1,30 @@
-﻿// components/GamePage.tsx
-import {useGameHub} from "../hooks/useGameHub";
-import {Board} from "./Board";
-import getOrCreatePlayerId from "../utils/playerId"
-import {useState} from "react";
+﻿import { useGameHub, GameStateDto } from "../hooks/useGameHub";
+import { Board } from "./Board";
+import getOrCreatePlayerId from "../utils/playerId";
 
-export function GamePage() {
-    const [gameId, setGameId] = useState("game-1"); // TODOP unhardcode
-    const [playerId, setPlayerId] = useState(getOrCreatePlayerId());
-    const gameState = useGameHub(gameId, playerId);
+export const GameBoard: React.FC = () => {
+    const gameId = "game-1";
+    const playerId = getOrCreatePlayerId();
+    const { gameState, attack } = useGameHub(gameId, playerId);
+    if (!gameState) return <div>Waiting for game to start...</div>;
 
-    if (!gameState) return <div>Connecting...</div>;
+    const yourTurn = gameState.currentTurn === playerId;
 
     return (
         <div>
-            <h2>Current Turn: {gameState.currentTurn}</h2>
-            <h3>Status: {gameState.gameStatus}</h3>
-
-            <div style={{display: "flex", gap: "40px"}}>
+            <h3>{yourTurn ? "Your turn" : "Opponent's turn"}</h3>
+            <div style={{ display: "flex" }}>
                 <div>
                     <h4>Your Board</h4>
-                    <Board grid={gameState.playerBoard}/>
+                    <Board grid={gameState.playerBoard} />
                 </div>
-
                 <div>
                     <h4>Enemy Board</h4>
-                    <Board grid={gameState.enemyBoard}/>
+                    <Board grid={gameState.enemyBoard} onClick={(x, y) => {
+                        if (yourTurn) attack(x, y);
+                    }} />
                 </div>
             </div>
-
-            {gameState.winner && <h1>Winner: {gameState.winner}</h1>}
         </div>
     );
-}
+};

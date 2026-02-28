@@ -1,39 +1,32 @@
-﻿// components/Board.tsx
-interface Props {
+﻿interface BoardProps {
     grid: string[][];
+    onClick?: (x: number, y: number) => void;
 }
 
-export function Board({ grid }: Props) {
+export const Board: React.FC<BoardProps> = ({ grid, onClick }) => {
     return (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(10, 30px)" }}>
-            {grid.map((row, rowIndex) =>
-                row.map((cell, colIndex) => (
-                    <div
-                        key={`${rowIndex}-${colIndex}`}
-                        style={{
-                            width: 30,
-                            height: 30,
-                            border: "1px solid black",
-                            backgroundColor: getColor(cell)
-                        }}
-                    />
-                ))
-            )}
+        <div style={{ display: "inline-block", margin: 10 }}>
+            {grid.map((row, i) => (
+                <div key={i} style={{ display: "flex" }}>
+                    {row.map((cell, j) => (
+                        <div
+                            key={j}
+                            onClick={() => onClick?.(i, j)}
+                            style={{
+                                width: 30,
+                                height: 30,
+                                border: "1px solid black",
+                                backgroundColor:
+                                    cell === "empty" ? "white" :
+                                        cell === "ship" ? "gray" :
+                                            cell === "hit" ? "red" :
+                                                cell === "miss" ? "lightblue" :
+                                                    "yellow"
+                            }}
+                        />
+                    ))}
+                </div>
+            ))}
         </div>
     );
-}
-
-function getColor(status: string) {
-    switch (status) {
-        case "ship":
-            return "gray";
-        case "hit":
-            return "red";
-        case "miss":
-            return "lightblue";
-        case "sunk":
-            return "darkred";
-        default:
-            return "white";
-    }
-}
+};

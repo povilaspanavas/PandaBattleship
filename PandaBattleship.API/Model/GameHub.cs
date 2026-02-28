@@ -57,19 +57,15 @@ public class GameHub : Hub
             var playerIds = _gameRooms[gameId].ToList();
             var game = _gameService.StartGame(gameId, playerIds);
 
-            // Send initial game state to each player
             foreach (var pid in playerIds)
             {
+                var state = game.GetPlayerView(pid);
                 var connectionIds = _connectionToPlayer
                     .Where(kvp => kvp.Value == pid)
                     .Select(kvp => kvp.Key);
 
-                var state = game.GetPlayerView(pid); // personalized board view
-
                 foreach (var connId in connectionIds)
-                {
                     await Clients.Client(connId).SendAsync("GameStateUpdated", state);
-                }
             }
         }
 

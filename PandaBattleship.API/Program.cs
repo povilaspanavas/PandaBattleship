@@ -1,5 +1,6 @@
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using PandaBattleship.API;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,7 @@ builder.AddServiceDefaults();
 builder.AddNpgsqlDataSource("db");
 
 builder.Services.AddOpenApi();
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -32,7 +34,7 @@ app.MapGet("/db-check", async (Npgsql.NpgsqlDataSource dataSource) =>
     var count = await command.ExecuteScalarAsync();
     return Results.Ok(new { Message = "Connected to DB!", RowCount = count });
 });
-
+app.MapHub<GameHub>("/gamehub");
 app.Run();
 
 // ReSharper disable once ClassNeverInstantiated.Global

@@ -8,4 +8,11 @@
     <InstallCommand>npm install</InstallCommand>
     <BuildOutputFolder>$(MSBuildProjectDirectory)\dist</BuildOutputFolder>
   </PropertyGroup>
+  <ItemGroup>
+    <Script Include="src\components\Board.tsx" />
+    <Script Include="src\components\GamePage.tsx" />
+    <Script Include="src\hooks\useGameHub.ts" />
+    <Script Include="src\types\GameState.ts" />
+    <Script Include="src\utils\playerId.ts" />
+  </ItemGroup>
 </Project>

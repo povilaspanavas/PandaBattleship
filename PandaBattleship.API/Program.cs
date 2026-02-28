@@ -4,14 +4,32 @@ using PandaBattleship.API;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 builder.AddServiceDefaults();
 
 builder.AddNpgsqlDataSource("db");
 
 builder.Services.AddOpenApi();
+
+// 1. Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactDev", policy =>
+    {
+        policy.WithOrigins("http://localhost:56449") // React dev server
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials(); // VERY IMPORTANT for SignalR
+    });
+});
+
 builder.Services.AddSignalR();
+builder.Services.AddSingleton<GameService>();
 
 var app = builder.Build();
+
+// 4. Use CORS
+app.UseCors("AllowReactDev");
 
 app.MapDefaultEndpoints();
 app.MapHealthChecks("/health", new HealthCheckOptions

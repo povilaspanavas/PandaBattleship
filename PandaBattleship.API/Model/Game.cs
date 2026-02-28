@@ -1,4 +1,4 @@
-﻿namespace PandaBattleship.API;
+﻿using PandaBattleship.API;
 
 public class Game
 {
@@ -6,15 +6,14 @@ public class Game
     public string CurrentPlayerId { get; private set; }
     public Dictionary<string, Board> PlayerBoards { get; }
 
-    public Game(string gameId, List<string> playerIds)
+    public Game(string gameId, Dictionary<string, Board> boards)
     {
         GameId = gameId;
-
-        PlayerBoards = playerIds.ToDictionary(id => id, id => new Board());
+        PlayerBoards = boards;
 
         // Randomly pick who starts
         var rnd = new Random();
-        CurrentPlayerId = playerIds[rnd.Next(playerIds.Count)];
+        CurrentPlayerId = PlayerBoards.Keys.ElementAt(rnd.Next(PlayerBoards.Count));
     }
 
     public AttackResult ProcessAttack(string playerId, int x, int y)
@@ -26,21 +25,17 @@ public class Game
         var result = PlayerBoards[opponentId].Attack(x, y);
 
         CurrentPlayerId = opponentId; // switch turn
-
         return result;
     }
 
     public GameStateDto GetPlayerView(string playerId)
     {
+        var opponentId = PlayerBoards.Keys.First(id => id != playerId);
         return new GameStateDto
         {
             CurrentTurn = CurrentPlayerId,
-            GameStatus = "inProgress",
             PlayerBoard = PlayerBoards[playerId].GetGrid(),
-            EnemyBoard = PlayerBoards.Keys
-                .Where(id => id != playerId)
-                .Select(id => PlayerBoards[id].GetMaskedGrid())
-                .First() // for 2 players
+            EnemyBoard = PlayerBoards[opponentId].GetMaskedGrid()
         };
     }
 }

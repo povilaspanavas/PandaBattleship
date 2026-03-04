@@ -36,6 +36,11 @@ export default defineConfig({
     port: process.env.PORT ? parseInt(process.env.PORT) : 5173,
     strictPort: true,
     proxy: {
+      '/game': {
+        target: apiTarget,
+        changeOrigin: true,
+        secure: false,
+      },
       '/gamehub': {
         target: apiTarget,
         changeOrigin: true,

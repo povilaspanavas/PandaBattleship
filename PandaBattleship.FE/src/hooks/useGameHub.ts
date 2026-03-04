@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import * as signalR from "@microsoft/signalr";
 
 export interface GameStateDto {
@@ -13,8 +13,9 @@ export const useGameHub = (gameId: string, playerId: string) => {
     const connectionRef = useRef<signalR.HubConnection | null>(null);
 
     useEffect(() => {
+        const query = new URLSearchParams({ gameId, playerId }).toString();
         const connection = new signalR.HubConnectionBuilder()
-            .withUrl(`https://localhost:5001/gamehub?gameId=${gameId}&playerId=${playerId}`, {
+            .withUrl(`/gamehub?${query}`, {
                 withCredentials: true // must match AllowCredentials
             })
             .withAutomaticReconnect()

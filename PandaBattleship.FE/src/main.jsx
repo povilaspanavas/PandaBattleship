@@ -3,7 +3,6 @@ import {createRoot} from 'react-dom/client'
 import {BrowserRouter, Route, Routes} from "react-router";
 import './index.css'
 import AppOriginal from './AppOriginal.jsx'
-import AppPvP from './AppPvP.jsx'
 import {GameBoard} from "./components/GamePage.tsx";
 
 createRoot(document.getElementById('root')).render(

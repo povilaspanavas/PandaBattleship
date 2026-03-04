@@ -250,3 +250,8 @@ This is a **learning project**, so:
 - Add tests for new endpoints
 - Update this documentation when architecture changes
 - Use semantic search to find relevant code before editing
+
+---
+## Agent Edit Preference
+- Use `apply_patch` for all manual code edits so changes appear as structured diffs in chat.
+- Avoid full-file overwrite commands (for example `Set-Content`) unless explicitly requested.

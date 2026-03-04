@@ -1,6 +1,7 @@
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using PandaBattleship.API;
+using PandaBattleship.API.Model;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +53,13 @@ app.MapGet("/db-check", async (Npgsql.NpgsqlDataSource dataSource) =>
     var count = await command.ExecuteScalarAsync();
     return Results.Ok(new { Message = "Connected to DB!", RowCount = count });
 });
+
+app.MapPost("/game/attack", (AttackRequest request, GameService gameService) =>
+{
+    var result = gameService.Attack(request.GameId, request.PlayerId, request.X, request.Y);
+    return Results.Ok(result);
+});
+
 app.MapHub<GameHub>("/gamehub");
 app.Run();
 

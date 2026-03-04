@@ -37,8 +37,21 @@ export const useGameHub = (gameId: string, playerId: string) => {
     }, [gameId, playerId]);
 
     const attack = (x: number, y: number) => {
-        if (!connectionRef.current) return;
-        connectionRef.current.invoke("Attack", gameId, x, y).catch(console.error);
+        fetch("/game/attack", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "include",
+            body: JSON.stringify({ gameId, playerId, x, y })
+        })
+            .then(response => {
+                if (response.ok) return null;
+                return response.text().then(errorText => {
+                    console.error("Attack request failed:", response.status, errorText);
+                });
+            })
+            .catch(console.error);
     };
 
     return { gameState, attack };

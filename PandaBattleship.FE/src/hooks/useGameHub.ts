@@ -13,6 +13,16 @@ export const useGameHub = (gameId: string, playerId: string) => {
     const connectionRef = useRef<signalR.HubConnection | null>(null);
 
     useEffect(() => {
+        const loadPlayerView = (connection: signalR.HubConnection) => {
+            connection.invoke<GameStateDto>("GetPlayerView", gameId)
+                .then(state => {
+                    setGameState(state);
+                })
+                .catch(() => {
+                    // The game may not exist until the second player connects.
+                });
+        };
+
         const query = new URLSearchParams({ gameId, playerId }).toString();
         const connection = new signalR.HubConnectionBuilder()
             .withUrl(`/gamehub?${query}`, {
@@ -25,8 +35,15 @@ export const useGameHub = (gameId: string, playerId: string) => {
             setGameState(state);
         });
 
+        connection.onreconnected(() => {
+            loadPlayerView(connection);
+        });
+
         connection.start()
-            .then(() => console.log("Connected to GameHub"))
+            .then(() => {
+                console.log("Connected to GameHub");
+                loadPlayerView(connection);
+            })
             .catch(err => console.error(err));
 
         connectionRef.current = connection;
@@ -37,20 +54,8 @@ export const useGameHub = (gameId: string, playerId: string) => {
     }, [gameId, playerId]);
 
     const attack = (x: number, y: number) => {
-        fetch("/game/attack", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "include",
-            body: JSON.stringify({ gameId, playerId, x, y })
-        })
-            .then(response => {
-                if (response.ok) return null;
-                return response.text().then(errorText => {
-                    console.error("Attack request failed:", response.status, errorText);
-                });
-            })
+        connectionRef.current
+            ?.invoke("Attack", gameId, x, y)
             .catch(console.error);
     };
 

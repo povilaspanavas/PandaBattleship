@@ -8,11 +8,9 @@ public class GameHub : Hub
     private readonly ILogger<GameHub> _logger;
     private readonly GameService _gameService;
 
-    // GameId → Set of PlayerIds
-    private static readonly ConcurrentDictionary<string, HashSet<string>> _gameRooms = new();
-
     // ConnectionId → PlayerId (for reconnects)
     private static readonly ConcurrentDictionary<string, string> _connectionToPlayer = new();
+    private static readonly ConcurrentDictionary<string, string> _connectionToGame = new();
 
     public GameHub(ILogger<GameHub> logger, GameService gameService)
     {
@@ -23,8 +21,13 @@ public class GameHub : Hub
     public override async Task OnConnectedAsync()
     {
         var http = Context.GetHttpContext();
-        var gameId = http.Request.Query["gameId"];
-        var playerId = http.Request.Query["playerId"];
+        if (http is null)
+        {
+            throw new HubException("HTTP context is required");
+        }
+
+        var gameId = http.Request.Query["gameId"].ToString();
+        var playerId = http.Request.Query["playerId"].ToString();
 
         if (string.IsNullOrWhiteSpace(gameId) || string.IsNullOrWhiteSpace(playerId))
         {
@@ -35,38 +38,23 @@ public class GameHub : Hub
 
         // Map ConnectionId to PlayerId
         _connectionToPlayer[Context.ConnectionId] = playerId;
-
-        // Add player to game room
-        _gameRooms.AddOrUpdate(
-            gameId,
-            new HashSet<string> { playerId },
-            (key, set) =>
-            {
-                lock (set) set.Add(playerId);
-                return set;
-            });
+        _connectionToGame[Context.ConnectionId] = gameId;
 
         await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
 
-        // Check if both players joined
-        int count = _gameRooms[gameId].Count;
-        if (count == 2)
+        var playerIds = GetConnectedPlayerIds(gameId);
+        var game = _gameService.GetGame(gameId);
+
+        if (playerIds.Count == 2 && (game is null || playerIds.Any(pid => !game.PlayerBoards.ContainsKey(pid))))
         {
             _logger.LogInformation("Both players joined {gameId}, starting game", gameId);
 
-            var playerIds = _gameRooms[gameId].ToList();
-            var game = _gameService.StartGame(gameId, playerIds);
-
-            foreach (var pid in playerIds)
-            {
-                var state = game.GetPlayerView(pid);
-                var connectionIds = _connectionToPlayer
-                    .Where(kvp => kvp.Value == pid)
-                    .Select(kvp => kvp.Key);
-
-                foreach (var connId in connectionIds)
-                    await Clients.Client(connId).SendAsync("GameStateUpdated", state);
-            }
+            game = _gameService.StartGame(gameId, playerIds);
+            await SendGameStateToPlayers(game);
+        }
+        else if (game?.PlayerBoards.ContainsKey(playerId) == true)
+        {
+            await Clients.Caller.SendAsync("GameStateUpdated", game.GetPlayerView(playerId));
         }
 
         await base.OnConnectedAsync();
@@ -76,13 +64,25 @@ public class GameHub : Hub
     {
         // Remove mapping
         _connectionToPlayer.TryRemove(Context.ConnectionId, out _);
+        _connectionToGame.TryRemove(Context.ConnectionId, out _);
 
         // Optional: handle player leaving mid-game
 
         await base.OnDisconnectedAsync(exception);
     }
 
-    // Example: called by frontend via API / FE
+    public GameStateDto GetPlayerView(string gameId)
+    {
+        if (!_connectionToPlayer.TryGetValue(Context.ConnectionId, out var playerId))
+        {
+            throw new HubException("Player not recognized");
+        }
+
+        var game = _gameService.GetGame(gameId) ?? throw new HubException("Game not found");
+
+        return game.GetPlayerView(playerId);
+    }
+
     public async Task Attack(string gameId, int x, int y)
     {
         if (!_connectionToPlayer.TryGetValue(Context.ConnectionId, out var playerId))
@@ -92,14 +92,36 @@ public class GameHub : Hub
 
         var game = _gameService.GetGame(gameId) ?? throw new HubException("Game not found");
 
-        var result = game.ProcessAttack(playerId, x, y);
+        game.ProcessAttack(playerId, x, y);
 
-        // Send updated state to both players
+        await SendGameStateToPlayers(game);
+    }
+
+    private List<string> GetConnectedPlayerIds(string gameId)
+    {
+        var playerIds = new HashSet<string>();
+
+        foreach (var (connectionId, connectedGameId) in _connectionToGame)
+        {
+            if (connectedGameId == gameId && _connectionToPlayer.TryGetValue(connectionId, out var playerId))
+            {
+                playerIds.Add(playerId);
+            }
+        }
+
+        return playerIds.ToList();
+    }
+
+    private async Task SendGameStateToPlayers(Game game)
+    {
         foreach (var pid in game.PlayerBoards.Keys)
         {
             var connectionIds = _connectionToPlayer
-                .Where(kvp => kvp.Value == pid)
-                .Select(kvp => kvp.Key);
+                .Where(kvp => kvp.Value == pid &&
+                              _connectionToGame.TryGetValue(kvp.Key, out var gameId) &&
+                              gameId == game.GameId)
+                .Select(kvp => kvp.Key)
+                .ToList();
 
             var state = game.GetPlayerView(pid);
 

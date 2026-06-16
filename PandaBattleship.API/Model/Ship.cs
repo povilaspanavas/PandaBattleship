@@ -1,7 +1,12 @@
 ﻿namespace PandaBattleship.API.Model;
 
+using System.Text.Json.Serialization;
+
 public class Ship
 {
+    [JsonPropertyName("type")]
     public string Type { get; set; } = "";
-    public List<List<int>> Coords { get; set; } = new(); // [[x,y], ...]
+
+    [JsonPropertyName("coords")]
+    public List<List<int>> Coords { get; set; } = new();
 }

@@ -15,7 +15,9 @@ export const useGameHub = (gameId: string, playerId: string) => {
     useEffect(() => {
         const loadPlayerView = (connection: signalR.HubConnection) => {
             connection.invoke<GameStateDto>("GetPlayerView", gameId)
-                .then(setGameState)
+                .then(state => {
+                    setGameState(state);
+                })
                 .catch(() => {
                     // The game may not exist until the second player connects.
                 });

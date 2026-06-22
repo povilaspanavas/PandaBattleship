@@ -14,7 +14,7 @@ var api =
         .AddProject<Projects.PandaBattleship_API>("PandaBattleshipApi")
         .WithReference(db)
         .WithHttpsEndpoint(port: 5001)
-        .WaitFor(db)
+        //.WaitFor(db)
         .WithHttpHealthCheck("health")
         .ConfigureApiCustomUrls();
 

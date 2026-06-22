@@ -32,10 +32,12 @@ public class Board
     public AttackResult Attack(int x, int y)
     {
         string status;
+        var isHit = false;
         if (_grid[x, y] == "ship")
         {
             _grid[x, y] = "hit";
             status = "hit";
+            isHit = true;
             MarkSunkShipIfNeeded(x, y);
         }
         else if (_grid[x, y] == "empty")
@@ -48,7 +50,7 @@ public class Board
             status = _grid[x, y]; // already hit/miss
         }
 
-        return new AttackResult { X = x, Y = y, Status = status };
+        return new AttackResult { X = x, Y = y, Status = status, IsHit = isHit };
     }
 
     private void MarkSunkShipIfNeeded(int x, int y)

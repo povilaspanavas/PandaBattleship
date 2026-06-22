@@ -4,6 +4,7 @@ export type CellStatus =
     | "ship"
     | "hit"
     | "miss"
+    | "blocked"
     | "sunk";
 
 export interface GameState {

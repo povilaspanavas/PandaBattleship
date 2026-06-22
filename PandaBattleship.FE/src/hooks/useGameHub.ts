@@ -1,11 +1,13 @@
 import { useEffect, useState, useRef } from "react";
 import * as signalR from "@microsoft/signalr";
+import type { CellStatus } from "../types/GameState";
 
 export interface GameStateDto {
     currentTurn: string;
     gameStatus: string;
-    playerBoard: string[][];
-    enemyBoard: string[][];
+    playerBoard: CellStatus[][];
+    enemyBoard: CellStatus[][];
+    winner?: string;
 }
 
 export const useGameHub = (gameId: string, playerId: string) => {

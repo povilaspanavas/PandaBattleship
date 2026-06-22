@@ -1,32 +1,54 @@
-﻿interface BoardProps {
-    grid: string[][];
+import type { CellStatus } from "../types/GameState";
+
+interface BoardProps {
+    grid: CellStatus[][];
     onClick?: (x: number, y: number) => void;
+    isPlayerGrid?: boolean;
+    disabled?: boolean;
+    waiting?: boolean;
 }
 
-export const Board: React.FC<BoardProps> = ({ grid, onClick }) => {
+const getCellClasses = (cell: CellStatus, isPlayerGrid: boolean) => {
+    if (cell === "sunk") return "bg-orange-500";
+    if (cell === "miss" || cell === "blocked") return "text-blue-400";
+    if (isPlayerGrid && (cell === "hit" || cell === "ship")) return "bg-gray-400";
+
+    return "";
+};
+
+const getCellContent = (cell: CellStatus) => {
+    if (cell === "hit") return "🔥";
+    if (cell === "miss" || cell === "blocked") return "O";
+
+    return "";
+};
+
+export const Board: React.FC<BoardProps> = ({
+    grid,
+    onClick,
+    isPlayerGrid = false,
+    disabled = false,
+    waiting = false,
+}) => {
+    const cursorType = disabled
+        ? "cursor-not-allowed"
+        : waiting
+            ? "cursor-wait"
+            : "cursor-pointer hover:bg-gray-700";
+
     return (
-        <div style={{ display: "inline-block", margin: 10 }}>
-            {grid.map((row, i) => (
-                <div key={i} style={{ display: "flex" }}>
-                    {row.map((cell, j) => (
-                        <div
-                            key={j}
-                            onClick={() => onClick?.(i, j)}
-                            style={{
-                                width: 30,
-                                height: 30,
-                                border: "1px solid black",
-                                backgroundColor:
-                                    cell === "empty" ? "white" :
-                                        cell === "ship" ? "gray" :
-                                            cell === "hit" ? "red" :
-                                                cell === "miss" ? "lightblue" :
-                                                    "yellow"
-                            }}
-                        />
-                    ))}
-                </div>
-            ))}
+        <div className={`inline-grid grid-cols-10 gap-0 border border-gray-500 ${disabled ? "cursor-not-allowed" : ""}`}>
+            {grid.map((row, rowIndex) =>
+                row.map((cell, colIndex) => (
+                    <div
+                        key={`${rowIndex}-${colIndex}`}
+                        className={`w-8 h-8 sm:w-10 sm:h-10 border border-gray-500 flex items-center justify-center transition-colors ${cursorType} ${getCellClasses(cell, isPlayerGrid)}`}
+                        onClick={() => !disabled && !waiting && onClick?.(rowIndex, colIndex)}
+                    >
+                        {getCellContent(cell)}
+                    </div>
+                ))
+            )}
         </div>
     );
 };

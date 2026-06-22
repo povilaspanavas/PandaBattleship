@@ -24,7 +24,11 @@ public class Game
         var opponentId = PlayerBoards.Keys.First(id => id != playerId);
         var result = PlayerBoards[opponentId].Attack(x, y);
 
-        CurrentPlayerId = opponentId; // switch turn
+        if (!result.IsHit)
+        {
+            CurrentPlayerId = opponentId;
+        }
+
         return result;
     }
 

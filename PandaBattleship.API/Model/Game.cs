@@ -4,6 +4,8 @@ public class Game
 {
     public string GameId { get; }
     public string CurrentPlayerId { get; private set; }
+    public string GameStatus { get; private set; } = "inProgress";
+    public string? Winner { get; private set; }
     public Dictionary<string, Board> PlayerBoards { get; }
 
     public Game(string gameId, Dictionary<string, Board> boards)
@@ -18,11 +20,21 @@ public class Game
 
     public AttackResult ProcessAttack(string playerId, int x, int y)
     {
+        if (GameStatus == "finished")
+            throw new Exception("Game is already finished");
+
         if (playerId != CurrentPlayerId)
             throw new Exception("Not your turn");
 
         var opponentId = PlayerBoards.Keys.First(id => id != playerId);
         var result = PlayerBoards[opponentId].Attack(x, y);
+
+        if (PlayerBoards[opponentId].AreAllShipsSunk())
+        {
+            GameStatus = "finished";
+            Winner = playerId;
+            return result;
+        }
 
         if (!result.IsHit)
         {
@@ -38,8 +50,10 @@ public class Game
         return new GameStateDto
         {
             CurrentTurn = CurrentPlayerId,
+            GameStatus = GameStatus,
             PlayerBoard = PlayerBoards[playerId].GetGrid(),
-            EnemyBoard = PlayerBoards[opponentId].GetMaskedGrid()
+            EnemyBoard = PlayerBoards[opponentId].GetMaskedGrid(),
+            Winner = Winner
         };
     }
 }

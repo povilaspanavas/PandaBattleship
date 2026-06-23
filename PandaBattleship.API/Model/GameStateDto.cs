@@ -6,6 +6,7 @@ public class GameStateDto
     public string GameStatus { get; set; } = "inProgress";
     public string[][] PlayerBoard { get; set; } = Array.Empty<string[]>();
     public string[][] EnemyBoard { get; set; } = Array.Empty<string[]>();
+    public string? Winner { get; set; }
 
     public static GameStateDto Waiting()
     {

@@ -40,6 +40,25 @@ public class GameTurnTests
         Assert.Equal("player-2", game.CurrentPlayerId);
     }
 
+    [Fact]
+    public void ProcessAttack_WhenPlayerSinksLastOpponentShip_FinishesGameWithWinner()
+    {
+        var game = CreateGameWithCurrentPlayer("player-1");
+
+        game.ProcessAttack("player-1", 1, 1);
+        game.ProcessAttack("player-1", 1, 2);
+
+        var playerView = game.GetPlayerView("player-1");
+        var opponentView = game.GetPlayerView("player-2");
+
+        Assert.Equal("finished", game.GameStatus);
+        Assert.Equal("player-1", game.Winner);
+        Assert.Equal("finished", playerView.GameStatus);
+        Assert.Equal("player-1", playerView.Winner);
+        Assert.Equal("finished", opponentView.GameStatus);
+        Assert.Equal("player-1", opponentView.Winner);
+    }
+
     private static Game CreateGameWithCurrentPlayer(string currentPlayerId)
     {
         var game = new Game("game-1", new Dictionary<string, Board>

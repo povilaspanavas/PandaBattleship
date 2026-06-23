@@ -37,7 +37,6 @@ export const GameBoard: React.FC = () => {
     return (
         <>
             {didPlayerWin && <Confetti />}
-            {didPlayerLose && <PandaRage />}
             <div className="max-w-5xl mx-auto p-1 text-center min-h-screen flex flex-col items-center">
                 <PageHeader />
 
@@ -99,6 +98,7 @@ export const GameBoard: React.FC = () => {
                     </div>
                 </div>
             </div>
+            {didPlayerLose && <PandaRage />}
         </>
     );
 };

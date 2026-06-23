@@ -118,6 +118,12 @@ public class Board
         return ship.Coords.Any(coord => coord[0] == x && coord[1] == y);
     }
 
+    public bool AreAllShipsSunk()
+    {
+        return _layout.Ships.All(ship =>
+            ship.Coords.All(coord => _grid[coord[0], coord[1]] == "sunk"));
+    }
+
     public string[][] GetGrid()
     {
         var result = new string[GridSize][];

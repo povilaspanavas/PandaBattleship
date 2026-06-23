@@ -1,6 +1,7 @@
 import Confetti from "react-confetti";
 import { useGameHub } from "../hooks/useGameHub";
 import { Board } from "./Board";
+import PandaRage from "./PandaRage";
 import getOrCreatePlayerId from "../utils/playerId";
 import pandaLogo from "../assets/brave_panda_1024.png";
 
@@ -31,10 +32,12 @@ export const GameBoard: React.FC = () => {
     const isWaitingForOpponent = gameState.gameStatus === "waiting";
     const isFinished = gameState.gameStatus === "finished";
     const didPlayerWin = isFinished && gameState.winner === playerId;
+    const didPlayerLose = isFinished && !didPlayerWin;
 
     return (
         <>
             {didPlayerWin && <Confetti />}
+            {didPlayerLose && <PandaRage />}
             <div className="max-w-5xl mx-auto p-1 text-center min-h-screen flex flex-col items-center">
                 <PageHeader />
 

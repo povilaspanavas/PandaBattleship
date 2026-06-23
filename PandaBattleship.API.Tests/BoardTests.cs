@@ -80,4 +80,23 @@ public class BoardTests
         Assert.Equal("blocked", grid[1][1]);
         Assert.Equal("empty", grid[9][9]);
     }
+
+    [Fact]
+    public void AreAllShipsSunk_WhenEveryShipIsSunk_ReturnsTrue()
+    {
+        var board = new Board(new ShipLayout
+        {
+            Ships =
+            [
+                new Ship { Type = "Submarine", Coords = [[0, 0]] },
+                new Ship { Type = "Destroyer", Coords = [[2, 2], [2, 3]] }
+            ]
+        });
+
+        board.Attack(0, 0);
+        board.Attack(2, 2);
+        board.Attack(2, 3);
+
+        Assert.True(board.AreAllShipsSunk());
+    }
 }

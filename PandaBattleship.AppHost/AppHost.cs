@@ -19,7 +19,7 @@ var api =
         .ConfigureApiCustomUrls();
 
 builder.AddNpmApp("PandaBattleshipFe", "../PandaBattleship.FE")
-    .WithHttpEndpoint(targetPort: 56449, port: 56449, env: "PORT", isProxied: false)
+    .WithHttpEndpoint(targetPort: 10109, port: 10109, env: "PORT", isProxied: false)
     .WithExternalHttpEndpoints()
     .WithReference(api)
     .ConfigureFeCustomUrls();

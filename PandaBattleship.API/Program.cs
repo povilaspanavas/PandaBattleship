@@ -1,7 +1,8 @@
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using PandaBattleship.API;
-using PandaBattleship.API.Model;
+using PandaBattleship.API.Contracts.Requests;
+using PandaBattleship.API.Hubs;
+using PandaBattleship.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

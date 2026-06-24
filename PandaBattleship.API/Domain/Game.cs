@@ -1,4 +1,6 @@
-﻿using PandaBattleship.API;
+using PandaBattleship.API.Contracts.Responses;
+
+namespace PandaBattleship.API.Domain;
 
 public class Game
 {

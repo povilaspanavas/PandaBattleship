@@ -1,6 +1,6 @@
-﻿namespace PandaBattleship.API.Model;
-
 using System.Text.Json.Serialization;
+
+namespace PandaBattleship.API.Domain;
 
 public class Ship
 {

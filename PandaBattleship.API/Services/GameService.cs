@@ -1,7 +1,8 @@
 ﻿using System.Collections.Concurrent;
-using PandaBattleship.API.Model;
+using PandaBattleship.API.Contracts.Responses;
+using PandaBattleship.API.Domain;
 
-namespace PandaBattleship.API;
+namespace PandaBattleship.API.Services;
 
 using System.Text.Json;
 

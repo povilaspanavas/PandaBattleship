@@ -1,29 +1,27 @@
-﻿using PandaBattleship.API.Model;
+using PandaBattleship.API.Contracts.Responses;
 
-namespace PandaBattleship.API;
+namespace PandaBattleship.API.Domain;
 
 public class Board
 {
     private const int GridSize = 10;
     private readonly ShipLayout _layout;
-    private readonly string[,] _grid = new string[GridSize, GridSize]; // "empty", "ship", "hit", "miss", "blocked", "sunk"
+    private readonly string[,] _grid = new string[GridSize, GridSize];
 
     public Board(ShipLayout layout)
     {
         _layout = layout;
 
-        // Initialize grid
-        for (int x = 0; x < GridSize; x++)
-        for (int y = 0; y < GridSize; y++)
+        for (var x = 0; x < GridSize; x++)
+        for (var y = 0; y < GridSize; y++)
             _grid[x, y] = "empty";
 
-        // Place ships
         foreach (var ship in layout.Ships)
         {
             foreach (var coord in ship.Coords)
             {
-                int x = coord[0];
-                int y = coord[1];
+                var x = coord[0];
+                var y = coord[1];
                 _grid[x, y] = "ship";
             }
         }
@@ -33,6 +31,7 @@ public class Board
     {
         string status;
         var isHit = false;
+
         if (_grid[x, y] == "ship")
         {
             _grid[x, y] = "hit";
@@ -47,7 +46,7 @@ public class Board
         }
         else
         {
-            status = _grid[x, y]; // already hit/miss
+            status = _grid[x, y];
         }
 
         return new AttackResult { X = x, Y = y, Status = status, IsHit = isHit };
@@ -127,27 +126,28 @@ public class Board
     public string[][] GetGrid()
     {
         var result = new string[GridSize][];
-        for (int i = 0; i < GridSize; i++)
+        for (var i = 0; i < GridSize; i++)
         {
             result[i] = new string[GridSize];
-            for (int j = 0; j < GridSize; j++)
+            for (var j = 0; j < GridSize; j++)
                 result[i][j] = _grid[i, j];
         }
+
         return result;
     }
 
     public string[][] GetMaskedGrid()
     {
-        // For opponent: mask unhit ships
         var result = new string[GridSize][];
-        for (int i = 0; i < GridSize; i++)
+        for (var i = 0; i < GridSize; i++)
         {
             result[i] = new string[GridSize];
-            for (int j = 0; j < GridSize; j++)
+            for (var j = 0; j < GridSize; j++)
             {
                 result[i][j] = _grid[i, j] == "ship" ? "empty" : _grid[i, j];
             }
         }
+
         return result;
     }
 }

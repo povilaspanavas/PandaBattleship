@@ -1,4 +1,4 @@
-﻿namespace PandaBattleship.API;
+namespace PandaBattleship.API.Contracts.Responses;
 
 public class AttackResult
 {

@@ -1,7 +1,10 @@
 ﻿﻿using System.Collections.Concurrent;
 using Microsoft.AspNetCore.SignalR;
+using PandaBattleship.API.Contracts.Responses;
+using PandaBattleship.API.Domain;
+using PandaBattleship.API.Services;
 
-namespace PandaBattleship.API;
+namespace PandaBattleship.API.Hubs;
 
 public class GameHub : Hub
 {

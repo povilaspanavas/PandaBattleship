@@ -1,4 +1,4 @@
-using PandaBattleship.API.Model;
+using PandaBattleship.API.Domain;
 
 namespace PandaBattleship.API.Tests;
 

@@ -30,24 +30,30 @@ export const Board: React.FC<BoardProps> = ({
     disabled = false,
     waiting = false,
 }) => {
-    const cursorType = disabled
-        ? "cursor-not-allowed"
-        : waiting
-            ? "cursor-wait"
-            : "cursor-pointer hover:bg-gray-700";
+    const getInteractionClasses = (cell: CellStatus) => {
+        if (disabled) return "cursor-not-allowed";
+        if (waiting) return "cursor-wait";
+        if (cell === "empty") return "cursor-pointer hover:bg-gray-700";
+
+        return "cursor-not-allowed";
+    };
 
     return (
         <div className={`inline-grid grid-cols-10 gap-0 border border-gray-500 ${disabled ? "cursor-not-allowed" : ""}`}>
             {grid.map((row, rowIndex) =>
-                row.map((cell, colIndex) => (
-                    <div
-                        key={`${rowIndex}-${colIndex}`}
-                        className={`w-8 h-8 sm:w-10 sm:h-10 border border-gray-500 flex items-center justify-center transition-colors ${cursorType} ${getCellClasses(cell, isPlayerGrid)}`}
-                        onClick={() => !disabled && !waiting && onClick?.(rowIndex, colIndex)}
-                    >
-                        {getCellContent(cell)}
-                    </div>
-                ))
+                row.map((cell, colIndex) => {
+                    const canAttack = !disabled && !waiting && cell === "empty";
+
+                    return (
+                        <div
+                            key={`${rowIndex}-${colIndex}`}
+                            className={`w-8 h-8 sm:w-10 sm:h-10 border border-gray-500 flex items-center justify-center transition-colors ${getInteractionClasses(cell)} ${getCellClasses(cell, isPlayerGrid)}`}
+                            onClick={() => canAttack && onClick?.(rowIndex, colIndex)}
+                        >
+                            {getCellContent(cell)}
+                        </div>
+                    );
+                })
             )}
         </div>
     );

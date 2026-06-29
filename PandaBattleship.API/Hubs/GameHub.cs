@@ -37,37 +37,33 @@ public class GameHub : Hub
             throw new HubException("gameId and playerId are required");
         }
 
+        var joinResult = _gameService.JoinGame(gameId, playerId);
+        if (joinResult.Status == JoinGameStatus.NotFound)
+        {
+            throw new HubException("Game not found");
+        }
+        if (joinResult.Status == JoinGameStatus.Full)
+        {
+            throw new HubException("Game is full");
+        }
+
         _logger.LogInformation("Player {playerId} joined the game {gameId}", playerId, gameId);
 
-        // Map ConnectionId to PlayerId
         _connectionToPlayer[Context.ConnectionId] = playerId;
         _connectionToGame[Context.ConnectionId] = gameId;
 
         await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
-
-        var playerIds = GetConnectedPlayerIds(gameId);
-        var game = _gameService.GetGame(gameId);
-
-        if (playerIds.Count == 2 && (game is null || playerIds.Any(pid => !game.PlayerBoards.ContainsKey(pid))))
-        {
-            _logger.LogInformation("Both players joined {gameId}, starting game", gameId);
-
-            game = _gameService.StartGame(gameId, playerIds);
-            await SendGameStateToPlayers(game);
-        }
-        else if (game?.PlayerBoards.ContainsKey(playerId) == true)
-        {
-            await Clients.Caller.SendAsync("GameStateUpdated", game.GetPlayerView(playerId));
-        }
+        await SendJoinResult(gameId, playerId, joinResult);
 
         await base.OnConnectedAsync();
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        // Remove mapping
-        _connectionToPlayer.TryRemove(Context.ConnectionId, out _);
-        _connectionToGame.TryRemove(Context.ConnectionId, out _);
+        if (_connectionToGame.TryGetValue(Context.ConnectionId, out var gameId))
+        {
+            await RemoveConnectionMappings(gameId);
+        }
 
         // Optional: handle player leaving mid-game
 
@@ -81,9 +77,9 @@ public class GameHub : Hub
             throw new HubException("Player not recognized");
         }
 
-        var game = _gameService.GetGame(gameId) ?? throw new HubException("Game not found");
+        EnsureConnectionJoinedGame(gameId);
 
-        return game.GetPlayerView(playerId);
+        return _gameService.GetPlayerView(gameId, playerId);
     }
 
     public async Task Attack(string gameId, int x, int y)
@@ -93,26 +89,30 @@ public class GameHub : Hub
             throw new HubException("Player not recognized");
         }
 
+        EnsureConnectionJoinedGame(gameId);
+
         var game = _gameService.GetGame(gameId) ?? throw new HubException("Game not found");
 
-        game.ProcessAttack(playerId, x, y);
+        _gameService.Attack(gameId, playerId, x, y);
 
         await SendGameStateToPlayers(game);
     }
 
-    private List<string> GetConnectedPlayerIds(string gameId)
+    private async Task SendJoinResult(string gameId, string playerId, JoinGameResult joinResult)
     {
-        var playerIds = new HashSet<string>();
-
-        foreach (var (connectionId, connectedGameId) in _connectionToGame)
+        switch (joinResult.Status)
         {
-            if (connectedGameId == gameId && _connectionToPlayer.TryGetValue(connectionId, out var playerId))
-            {
-                playerIds.Add(playerId);
-            }
+            case JoinGameStatus.Waiting:
+                await Clients.Caller.SendAsync("GameStateUpdated", _gameService.GetPlayerView(gameId, playerId));
+                break;
+            case JoinGameStatus.Started:
+                _logger.LogInformation("Both players joined {gameId}, starting game", gameId);
+                await SendGameStateToPlayers(joinResult.Game!);
+                break;
+            case JoinGameStatus.Joined:
+                await Clients.Caller.SendAsync("GameStateUpdated", _gameService.GetPlayerView(gameId, playerId));
+                break;
         }
-
-        return playerIds.ToList();
     }
 
     private async Task SendGameStateToPlayers(Game game)
@@ -133,6 +133,22 @@ public class GameHub : Hub
                 await Clients.Client(connId).SendAsync("GameStateUpdated", state);
             }
         }
+    }
+
+    private void EnsureConnectionJoinedGame(string gameId)
+    {
+        if (!_connectionToGame.TryGetValue(Context.ConnectionId, out var connectedGameId) ||
+            !string.Equals(connectedGameId, gameId, StringComparison.Ordinal))
+        {
+            throw new HubException("Connection is not joined to this game");
+        }
+    }
+
+    private async Task RemoveConnectionMappings(string gameId)
+    {
+        _connectionToPlayer.TryRemove(Context.ConnectionId, out _);
+        _connectionToGame.TryRemove(Context.ConnectionId, out _);
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId);
     }
 
     // Optional: simple chat method for debugging

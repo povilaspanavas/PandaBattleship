@@ -1,28 +1,37 @@
+import { useState } from "react";
 import Confetti from "react-confetti";
+import { useParams } from "react-router";
 import { useGameHub } from "../hooks/useGameHub";
 import { Board } from "./Board";
 import PandaRage from "./PandaRage";
 import getOrCreatePlayerId from "../utils/playerId";
-import pandaLogo from "../assets/brave_panda_1024.png";
-
-const PageHeader = () => (
-    <div className="flex items-center gap-2">
-        <h1 className="font-bold text-3xl">Panda Battleship</h1>
-        <img src={pandaLogo} className="max-w-30" alt="Panda Battleship" />
-    </div>
-);
+import { PageHeader } from "./PageHeader";
 
 export const GameBoard: React.FC = () => {
-    const gameId = "game-1";
+    const { gameId: routeGameId = "" } = useParams();
+    const gameId = routeGameId.toUpperCase();
     const playerId = getOrCreatePlayerId();
-    const { gameState, attack } = useGameHub(gameId, playerId);
+    const { gameState, attack, connectionError } = useGameHub(gameId, playerId);
+    const [copyStatus, setCopyStatus] = useState("");
+    const inviteUrl = `${window.location.origin}/pvp/${gameId}`;
+
+    const copyInviteUrl = async () => {
+        try {
+            await navigator.clipboard.writeText(inviteUrl);
+            setCopyStatus("Copied");
+        } catch (err) {
+            console.error(err);
+            setCopyStatus("Copy failed");
+        }
+    };
 
     if (!gameState) {
         return (
             <div className="max-w-5xl mx-auto p-1 text-center min-h-screen flex flex-col items-center">
                 <PageHeader />
+                <InviteBar gameId={gameId} inviteUrl={inviteUrl} copyStatus={copyStatus} onCopy={copyInviteUrl} />
                 <div className="text-l font-semibold px-2 py-1 gap-2 rounded-full bg-blue-200 text-cyan-700 tracking-wide">
-                    Waiting for game to start...
+                    {connectionError ?? "Connecting to game..."}
                 </div>
             </div>
         );
@@ -39,6 +48,7 @@ export const GameBoard: React.FC = () => {
             {didPlayerWin && <Confetti />}
             <div className="max-w-5xl mx-auto p-1 text-center min-h-screen flex flex-col items-center">
                 <PageHeader />
+                <InviteBar gameId={gameId} inviteUrl={inviteUrl} copyStatus={copyStatus} onCopy={copyInviteUrl} />
 
                 <div className="select-none">
                     <div className="flex flex-col items-center gap-1">
@@ -102,3 +112,26 @@ export const GameBoard: React.FC = () => {
         </>
     );
 };
+
+interface InviteBarProps {
+    gameId: string;
+    inviteUrl: string;
+    copyStatus: string;
+    onCopy: () => void;
+}
+
+const InviteBar: React.FC<InviteBarProps> = ({ gameId, inviteUrl, copyStatus, onCopy }) => (
+    <div className="w-full max-w-xl flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-white text-gray-800 border border-gray-200 rounded-lg shadow-sm px-3 py-2 mb-3">
+        <div className="flex-1 min-w-0 text-left">
+            <div className="text-xs uppercase text-gray-500 font-semibold">Game</div>
+            <div className="font-mono font-semibold truncate">{gameId || inviteUrl}</div>
+        </div>
+        <button
+            type="button"
+            className="rounded-md bg-gray-900 text-white font-semibold py-2 px-3 hover:bg-gray-700 transition-colors"
+            onClick={onCopy}
+        >
+            {copyStatus || "Copy Invite Link"}
+        </button>
+    </div>
+);

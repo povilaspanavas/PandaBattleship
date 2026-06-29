@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PandaBattleship.AppHost", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PandaBattleship.ServiceDefaults", "PandaBattleship.ServiceDefaults\PandaBattleship.ServiceDefaults.csproj", "{C5248378-B5B3-4082-99CE-96A8E6FFBA5F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PandaBattleship.API.IntegrationTests", "PandaBattleship.API.IntegrationTests\PandaBattleship.API.IntegrationTests.csproj", "{2EF7844B-3C61-45E6-88C6-B2C3D59DCA80}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -74,6 +76,18 @@ Global
 		{C5248378-B5B3-4082-99CE-96A8E6FFBA5F}.Release|x64.Build.0 = Release|Any CPU
 		{C5248378-B5B3-4082-99CE-96A8E6FFBA5F}.Release|x86.ActiveCfg = Release|Any CPU
 		{C5248378-B5B3-4082-99CE-96A8E6FFBA5F}.Release|x86.Build.0 = Release|Any CPU
+		{2EF7844B-3C61-45E6-88C6-B2C3D59DCA80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EF7844B-3C61-45E6-88C6-B2C3D59DCA80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EF7844B-3C61-45E6-88C6-B2C3D59DCA80}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2EF7844B-3C61-45E6-88C6-B2C3D59DCA80}.Debug|x64.Build.0 = Debug|Any CPU
+		{2EF7844B-3C61-45E6-88C6-B2C3D59DCA80}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2EF7844B-3C61-45E6-88C6-B2C3D59DCA80}.Debug|x86.Build.0 = Debug|Any CPU
+		{2EF7844B-3C61-45E6-88C6-B2C3D59DCA80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EF7844B-3C61-45E6-88C6-B2C3D59DCA80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2EF7844B-3C61-45E6-88C6-B2C3D59DCA80}.Release|x64.ActiveCfg = Release|Any CPU
+		{2EF7844B-3C61-45E6-88C6-B2C3D59DCA80}.Release|x64.Build.0 = Release|Any CPU
+		{2EF7844B-3C61-45E6-88C6-B2C3D59DCA80}.Release|x86.ActiveCfg = Release|Any CPU
+		{2EF7844B-3C61-45E6-88C6-B2C3D59DCA80}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -4,6 +4,7 @@ import {BrowserRouter, Route, Routes} from "react-router";
 import './index.css'
 import AppOriginal from './AppOriginal.jsx'
 import {GameBoard} from "./components/GamePage.tsx";
+import {PvpLobbyPage} from "./components/PvpLobbyPage.tsx";
 
 createRoot(document.getElementById('root')).render(
     <StrictMode>
@@ -11,7 +12,8 @@ createRoot(document.getElementById('root')).render(
             <Routes>
                 <Route path="/" element={<AppOriginal />}/>
                 <Route path="/ai" element={<AppOriginal />}/>
-                <Route path="/pvp" element={<GameBoard />}/>
+                <Route path="/pvp" element={<PvpLobbyPage />}/>
+                <Route path="/pvp/:gameId" element={<GameBoard />}/>
             </Routes>
         </BrowserRouter>
     </StrictMode>

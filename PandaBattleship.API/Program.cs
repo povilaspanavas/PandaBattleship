@@ -55,9 +55,15 @@ app.MapGet("/db-check", async (Npgsql.NpgsqlDataSource dataSource) =>
     return Results.Ok(new { Message = "Connected to DB!", RowCount = count });
 });
 
-app.MapPost("/game/attack", (AttackRequest request, GameService gameService) =>
+app.MapPost("/games", (GameService gameService) =>
 {
-    var result = gameService.Attack(request.GameId, request.PlayerId, request.X, request.Y);
+    var game = gameService.CreateGame();
+    return Results.Created($"/games/{game.GameId}", game);
+});
+
+app.MapPost("/games/{gameId}/attacks", (string gameId, AttackRequest request, GameService gameService) =>
+{
+    var result = gameService.Attack(gameId, request.PlayerId, request.X, request.Y);
     return Results.Ok(result);
 });
 

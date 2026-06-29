@@ -12,16 +12,27 @@ export interface GameStateDto {
 
 export const useGameHub = (gameId: string, playerId: string) => {
     const [gameState, setGameState] = useState<GameStateDto | null>(null);
+    const [connectionError, setConnectionError] = useState<string | null>(null);
     const connectionRef = useRef<signalR.HubConnection | null>(null);
 
     useEffect(() => {
+        setGameState(null);
+        setConnectionError(null);
+
+        if (!gameId || !playerId) {
+            setConnectionError("Game id and player id are required.");
+            return;
+        }
+
         const loadPlayerView = (connection: signalR.HubConnection) => {
             connection.invoke<GameStateDto>("GetPlayerView", gameId)
                 .then(state => {
                     setGameState(state);
+                    setConnectionError(null);
                 })
-                .catch(() => {
-                    // The game may not exist until the second player connects.
+                .catch(err => {
+                    console.error(err);
+                    setConnectionError("Could not load this game.");
                 });
         };
 
@@ -35,10 +46,18 @@ export const useGameHub = (gameId: string, playerId: string) => {
 
         connection.on("GameStateUpdated", (state: GameStateDto) => {
             setGameState(state);
+            setConnectionError(null);
         });
 
         connection.onreconnected(() => {
             loadPlayerView(connection);
+        });
+
+        connection.onclose(error => {
+            if (error) {
+                console.error(error);
+                setConnectionError("Disconnected from the game.");
+            }
         });
 
         connection.start()
@@ -46,7 +65,10 @@ export const useGameHub = (gameId: string, playerId: string) => {
                 console.log("Connected to GameHub");
                 loadPlayerView(connection);
             })
-            .catch(err => console.error(err));
+            .catch(err => {
+                console.error(err);
+                setConnectionError("Could not join this game.");
+            });
 
         connectionRef.current = connection;
 
@@ -61,5 +83,5 @@ export const useGameHub = (gameId: string, playerId: string) => {
             .catch(console.error);
     };
 
-    return { gameState, attack };
+    return { gameState, attack, connectionError };
 };

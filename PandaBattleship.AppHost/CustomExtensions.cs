@@ -22,13 +22,13 @@ static class EnumerableExtensions
                         Url = https.Url + "/health",
                         DisplayOrder = 85
                     });
-                    ctx.Urls.Add(new ResourceUrlAnnotation
-                    {
-                        DisplayText = "Check Db",
-                        Endpoint = https.Endpoint,
-                        Url = https.Url + "/db-check",
-                        DisplayOrder = 80
-                    });
+                    // ctx.Urls.Add(new ResourceUrlAnnotation
+                    // {
+                    //     DisplayText = "Check Db",
+                    //     Endpoint = https.Endpoint,
+                    //     Url = https.Url + "/db-check",
+                    //     DisplayOrder = 80
+                    // });
                 })
                 .WithUrls(ctx =>
                 {

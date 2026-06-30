@@ -1,23 +1,26 @@
-﻿import {useState, useEffect, useRef} from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { SHIP_LAYOUTS } from '../constants/shipLayouts';
 import { createEmptyGrid, findSunkenShip, markSunkShipOnGrid } from '../utils/gameHelpers';
 import { processAiShot, AI_SHOT_DELAY } from '../utils/aiPlayer';
 import Confetti from 'react-confetti'
-import GridOriginal from './GridOriginal.jsx';
-import PandaRage from "./PandaRage.jsx";
+import GridOriginal from './GridOriginal';
+import PandaRage from "./PandaRage";
+import type { ShipLayout, ShotResult, SinglePlayerGrid, TargetStack } from "../types/SinglePlayerGame";
 
 
 const GameOriginal = () => {
 
-    const [playerGrid, setPlayerGrid] = useState(createEmptyGrid());
-    const [enemyGrid, setEnemyGrid] = useState(createEmptyGrid());
-    const [enemyShipLayout, setEnemyShipLayout] = useState(null);
-    const [playerShipLayout, setPlayerShipLayout] = useState(null);
+    const [playerGrid, setPlayerGrid] = useState<SinglePlayerGrid>(createEmptyGrid());
+    const [enemyGrid, setEnemyGrid] = useState<SinglePlayerGrid>(createEmptyGrid());
+    const [enemyShipLayout, setEnemyShipLayout] = useState<ShipLayout | null>(null);
+    const [playerShipLayout, setPlayerShipLayout] = useState<ShipLayout | null>(null);
     const [isPlayerTurn, setIsPlayerTurn] = useState(true);
-    const [aiShotHistory, setAiShotHistory] = useState([]);
+    const [aiShotHistory, setAiShotHistory] = useState<ShotResult[]>([]);
     const [isGameOver, setIsGameOver] = useState(false);
     const [enemyDeadShips, setEnemyDeadShips] = useState(0);
     const [didPlayerWin, setDidPlayerWin] = useState(false);
+    const aiTargetStackRef = useRef<TargetStack>([]);
+    const playerDeadShipsRef = useRef(0);
 
     function startNewGame() {
         // Reset refs used during AI turn loop
@@ -55,11 +58,6 @@ const GameOriginal = () => {
         setEnemyGrid(createEmptyGrid());
     }
 
-    // Ref to track target stack synchronously during AI turn loop
-    const aiTargetStackRef = useRef([]);
-    // Ref to track player dead ships count synchronously during AI turn loop
-    const playerDeadShipsRef = useRef(0);
-
     useEffect(() => {
         startNewGame();
     }, []);
@@ -69,7 +67,7 @@ const GameOriginal = () => {
         if (isGameOver) return;
         setIsPlayerTurn(false);
         let continueAi = true;
-        let currentGrid = playerGrid; // Local variable to track grid state through the loop
+        let currentGrid: SinglePlayerGrid = playerGrid; // Local variable to track grid state through the loop
 
         while (continueAi) {
             console.log('=== Starting AI shot iteration ===');
@@ -118,11 +116,11 @@ const GameOriginal = () => {
         setIsPlayerTurn(true);
     };
 
-    const handleEnemyCellClick = (row, col) => {
+    const handleEnemyCellClick = (row: number, col: number) => {
         if (isGameOver) return;
         if (!isPlayerTurn || enemyGrid[row][col] !== null || !enemyShipLayout) return;
 
-        let newGrid = [...enemyGrid.map(r => [...r])];
+        let newGrid: SinglePlayerGrid = enemyGrid.map(r => [...r]);
 
         // Check if hit
         const isHit = enemyShipLayout.ships.some(ship =>

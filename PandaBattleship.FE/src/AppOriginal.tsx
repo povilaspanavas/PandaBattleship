@@ -1,4 +1,4 @@
-import GameOriginal from './components/GameOriginal.jsx';
+import GameOriginal from './components/GameOriginal';
 import DisplayAllLayouts from './components/DisplayAllLayouts';
 import pandaLogo from './assets/brave_panda_1024.png'
 

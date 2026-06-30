@@ -1,4 +1,14 @@
-﻿const GridOriginal = ({ grid, onCellClick, isPlayerGrid = false, disabled = false, waiting = false }) => {
+import type { SinglePlayerGrid } from "../types/SinglePlayerGame";
+
+interface GridOriginalProps {
+    grid: SinglePlayerGrid;
+    onCellClick?: ((row: number, col: number) => void) | null;
+    isPlayerGrid?: boolean;
+    disabled?: boolean;
+    waiting?: boolean;
+}
+
+const GridOriginal = ({ grid, onCellClick, isPlayerGrid = false, disabled = false, waiting = false }: GridOriginalProps) => {
     const cursorType = disabled ? 'cursor-not-allowed'
         : waiting ? 'cursor-wait' : 'cursor-pointer hover:bg-gray-700';
     return (

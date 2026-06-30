@@ -1,4 +1,6 @@
-﻿export const SHIP_LAYOUTS = [
+﻿import type { ShipLayout } from "../types/SinglePlayerGame";
+
+export const SHIP_LAYOUTS: ShipLayout[] = [
   {
     "name": "Lithuanian Classic",
     "ships": [

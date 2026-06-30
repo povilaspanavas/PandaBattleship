@@ -1,4 +1,4 @@
-import { type FormEvent, useState } from "react";
+import { type SubmitEventHandler, useState } from "react";
 import { useNavigate } from "react-router";
 import { PageHeader } from "./PageHeader";
 
@@ -59,7 +59,7 @@ export const PvpLobbyPage: React.FC = () => {
         }
     };
 
-    const joinGame = (event: FormEvent<HTMLFormElement>) => {
+    const joinGame: SubmitEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault();
         setError(null);
 

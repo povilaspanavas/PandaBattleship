@@ -1,7 +1,11 @@
-﻿import "./PandaRage.css";
+import type { AnimationEventHandler } from "react";
+import "./PandaRage.css";
 
-export default function PandaRage({ onComplete }) {
+interface PandaRageProps {
+    onComplete?: AnimationEventHandler<HTMLDivElement>;
+}
 
+export default function PandaRage({ onComplete }: PandaRageProps) {
     return (
         <div className="rage-overlay">
             <div className="rage-flash" onAnimationEnd={onComplete} />

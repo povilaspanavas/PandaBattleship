@@ -1,4 +1,4 @@
-﻿import type { SinglePlayerGrid } from "../types/SinglePlayerGame";
+import type { SinglePlayerGrid } from "../types/SinglePlayerGame";
 
 interface GridOriginalProps {
     grid: SinglePlayerGrid;

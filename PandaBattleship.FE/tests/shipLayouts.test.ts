@@ -1,5 +1,6 @@
 ﻿import { describe, it, expect } from 'vitest';
-import { SHIP_LAYOUTS } from '../src/constants/shipLayouts.js';
+import { SHIP_LAYOUTS } from '../src/constants/shipLayouts';
+import type { Ship } from "../src/types/SinglePlayerGame";
 
 describe('shipLayouts', () => {
   it('should have correct number of ships and lengths for all layouts', () => {
@@ -18,7 +19,12 @@ describe('shipLayouts', () => {
     };
 
     SHIP_LAYOUTS.forEach(layout => {
-      const shipCounts = {};
+      const shipCounts: Record<Ship["type"], number> = {
+        Battleship: 0,
+        Cruiser: 0,
+        Destroyer: 0,
+        Submarine: 0
+      };
 
       layout.ships.forEach(ship => {
         shipCounts[ship.type] = (shipCounts[ship.type] || 0) + 1;

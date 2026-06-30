@@ -1,11 +1,12 @@
 ﻿import { SHIP_LAYOUTS } from '../constants/shipLayouts';
 import { memo } from 'react';
+import type { ShipLayout, SinglePlayerGrid } from "../types/SinglePlayerGame";
 
 const GRID_SIZE = 10;
 
 const DisplayAllLayouts = () => {
-    const createGridFromLayout = (layout) => {
-        const grid = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(null));
+    const createGridFromLayout = (layout: ShipLayout): SinglePlayerGrid => {
+        const grid: SinglePlayerGrid = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(null));
         layout.ships.forEach(ship => {
             ship.coords.forEach(([r, c]) => {
                 grid[r][c] = 'ship';

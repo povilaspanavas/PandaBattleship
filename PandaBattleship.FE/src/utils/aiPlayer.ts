@@ -1,4 +1,5 @@
 ﻿import { GRID_SIZE, findSunkenShip, markSunkShipOnGrid } from './gameHelpers';
+import type { Coordinate, ShipLayout, ShotResult, SinglePlayerGrid, TargetStack } from "../types/SinglePlayerGame";
 
 /**
  * Delay in milliseconds before AI takes each shot
@@ -12,9 +13,9 @@ export const AI_SHOT_DELAY = 800;
  * @param {Array} grid - The game grid
  * @returns {Array} Array of [row, col] coordinates that are valid targets
  */
-export const getAdjacentTargets = (row, col, grid) => {
-    const targets = [];
-    const directions = [
+export const getAdjacentTargets = (row: number, col: number, grid: SinglePlayerGrid): Coordinate[] => {
+    const targets: Coordinate[] = [];
+    const directions: Coordinate[] = [
         [-1, 0], // up
         [1, 0],  // down
         [0, -1], // left
@@ -41,14 +42,14 @@ export const getAdjacentTargets = (row, col, grid) => {
  * @param {Array} targetStack - LIFO stack of targets to pursue (hunt mode)
  * @returns {Array|null} [row, col] coordinates for next shot, or null if no spots available
  */
-export const selectNextAiShot = (grid, targetStack) => {
+export const selectNextAiShot = (grid: SinglePlayerGrid, targetStack: TargetStack): Coordinate | null => {
     // If we have targets in hunt mode, use LIFO (pop from stack)
     if (targetStack.length > 0) {
         return targetStack[targetStack.length - 1]; // peek at top of stack
     }
 
     // Otherwise, pick random available spot
-    const availableSpots = [];
+    const availableSpots: Coordinate[] = [];
     for (let r = 0; r < GRID_SIZE; r++) {
         for (let c = 0; c < GRID_SIZE; c++) {
             if (grid[r][c] === null || grid[r][c] === 'ship') {
@@ -71,7 +72,22 @@ export const selectNextAiShot = (grid, targetStack) => {
  * @param {Object} shipLayout - Player ship layout for sunk ship detection
  * @returns {Object} Object with {newGrid, updatedStack, shotResult: {row, col, isHit}, noSpotsAvailable}
  */
-export const processAiShot = (grid, targetStack, shipLayout) => {
+type AiShotResult =
+    | {
+        newGrid: SinglePlayerGrid;
+        updatedStack: TargetStack;
+        shotResult: ShotResult;
+        noSpotsAvailable: false;
+    }
+    | {
+        noSpotsAvailable: true;
+    };
+
+export const processAiShot = (
+    grid: SinglePlayerGrid,
+    targetStack: TargetStack,
+    shipLayout: ShipLayout | null
+): AiShotResult => {
     // Select target
     const target = selectNextAiShot(grid, targetStack);
 

@@ -1,11 +1,13 @@
-﻿export const GRID_SIZE = 10;
+﻿import type { Coordinate, Ship, ShipLayout, SinglePlayerGrid } from "../types/SinglePlayerGame";
 
-export const createEmptyGrid = () => Array(GRID_SIZE)
+export const GRID_SIZE = 10;
+
+export const createEmptyGrid = (): SinglePlayerGrid => Array(GRID_SIZE)
     .fill(null)
     .map(() => Array(GRID_SIZE).fill(null));
 
-export const getSurroundingCells = (shipCoords) => {
-    const surrounding = new Set();
+export const getSurroundingCells = (shipCoords: Coordinate[]) => {
+    const surrounding = new Set<string>();
     shipCoords.forEach(([r, c]) => {
         for (let dr = -1; dr <= 1; dr++) {
             for (let dc = -1; dc <= 1; dc++) {
@@ -23,7 +25,7 @@ export const getSurroundingCells = (shipCoords) => {
     return surrounding;
 };
 
-export const findSunkenShip = (grid, layout) => {
+export const findSunkenShip = (grid: SinglePlayerGrid, layout: ShipLayout | null): Ship | null => {
     if (!layout) return null;
 
     for (const ship of layout.ships) {
@@ -36,7 +38,7 @@ export const findSunkenShip = (grid, layout) => {
     return null;
 };
 
-export const markSunkShipOnGrid = (grid, sunkenShip) => {
+export const markSunkShipOnGrid = (grid: SinglePlayerGrid, sunkenShip: Ship): SinglePlayerGrid => {
     const newGrid = grid.map(r => [...r]);
     // Mark ship cells as 'sunk'
     sunkenShip.coords.forEach(([r, c]) => {

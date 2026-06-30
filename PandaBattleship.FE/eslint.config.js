@@ -2,14 +2,27 @@ import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
-import { defineConfig, globalIgnores } from 'eslint/config'
+import tseslint from 'typescript-eslint'
+import { globalIgnores } from 'eslint/config'
 
-export default defineConfig([
+export default tseslint.config(
   globalIgnores(['dist']),
   {
-    files: ['**/*.{js,jsx}'],
+    files: ['*.config.js'],
     extends: [
       js.configs.recommended,
+    ],
+    languageOptions: {
+      ecmaVersion: 2022,
+      globals: globals.node,
+      sourceType: 'module',
+    },
+  },
+  {
+    files: ['src/**/*.{ts,tsx}', 'tests/**/*.ts'],
+    extends: [
+      js.configs.recommended,
+      ...tseslint.configs.recommended,
       reactHooks.configs.flat.recommended,
       reactRefresh.configs.vite,
     ],
@@ -23,19 +36,15 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
     },
   },
   {
-    files: ['vite.config.js'],
-    languageOptions: {
-      globals: globals.node,
-    },
-  },
-  {
-    files: ['src/components/GameOriginal.jsx'],
+    files: ['src/components/GameOriginal.tsx', 'src/hooks/useGameHub.ts'],
     rules: {
       'react-hooks/immutability': 'off',
+      'react-hooks/set-state-in-effect': 'off',
     },
   },
-])
+)

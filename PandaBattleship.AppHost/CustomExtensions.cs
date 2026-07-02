@@ -14,7 +14,7 @@ static class EnumerableExtensions
                 })
                 .WithUrls(ctx =>
                 {
-                    var https = ctx.Urls.First(x => x.Endpoint?.EndpointName == "http");
+                    var https = ctx.Urls.First(x => x.Endpoint?.EndpointName == "https");
                     ctx.Urls.Add(new ResourceUrlAnnotation
                     {
                         DisplayText = "Health",

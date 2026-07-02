@@ -1,4 +1,4 @@
-﻿resource "azurerm_log_analytics_workspace" "log_analytics_workspace" {
+resource "azurerm_log_analytics_workspace" "log_analytics_workspace" {
   name                = "loganalyticsworkspace${var.env_id}"
   resource_group_name = azurerm_resource_group.rg.name
   location            = var.location

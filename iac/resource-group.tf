@@ -1,3 +1,8 @@
+moved {
+  from = azurerm_resource_group.main
+  to   = azurerm_resource_group.rg
+}
+
 locals {
   region_slug                = replace(lower(var.location), " ", "")
   static_web_app_region_slug = replace(lower(var.static_web_app_location), " ", "")
@@ -9,7 +14,7 @@ locals {
   }
 }
 
-resource "azurerm_resource_group" "main" {
+resource "azurerm_resource_group" "rg" {
   name     = "rg-pandabattleship-${var.env_id}-${local.region_slug}"
   location = var.location
   tags     = local.common_tags

@@ -4,7 +4,7 @@ This workspace contains the PandaBattleship project - a learning project for exp
 
 ## Primary Documentation
 
-For comprehensive project documentation, see **`agents.md`** in the root directory.
+For comprehensive project documentation, see **`AGENTS.md`** in the root directory.
 
 ## Quick Context
 
@@ -20,4 +20,4 @@ For comprehensive project documentation, see **`agents.md`** in the root directo
 - `PandaBattleship.API/Program.cs` - API entry point
 - `PandaBattleship.FE/src/components/Game.jsx` - Main game component
 
-For detailed architecture, patterns, and common tasks, refer to `agents.md`.
+For detailed architecture, patterns, and common tasks, refer to `AGENTS.md`.

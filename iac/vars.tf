@@ -7,7 +7,7 @@ variable "env_id" {
 
 variable "location" {
   type        = string
-  description = "The Azure region for application resources"
+  description = "The default Azure region for application resources"
   default     = "UK South"
 }
 

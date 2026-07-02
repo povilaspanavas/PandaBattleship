@@ -8,6 +8,22 @@ import GridOriginal from "../src/components/GridOriginal";
 import type { Ship } from "../src/types/SinglePlayerGame";
 
 describe('shipLayouts', () => {
+  it('should include original and generated layouts', () => {
+    const originalLayoutNames = [
+      "Lithuanian Classic",
+      "Lithuanian Tetris",
+      "Lithuanian ZigZag",
+      "Lithuanian Perimeter",
+      "Lithuanian Snake",
+      "Lithuanian Scattered"
+    ];
+
+    expect(SHIP_LAYOUTS).toHaveLength(106);
+    originalLayoutNames.forEach(name => {
+      expect(SHIP_LAYOUTS.some(layout => layout.name === name)).toBe(true);
+    });
+  });
+
   it('should have correct number of ships and lengths for all layouts', () => {
     const expectedShipCounts = {
       Battleship: 1,

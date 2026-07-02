@@ -1,4 +1,4 @@
-﻿﻿using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using Microsoft.AspNetCore.SignalR;
 using PandaBattleship.API.Contracts.Responses;
 using PandaBattleship.API.Domain;

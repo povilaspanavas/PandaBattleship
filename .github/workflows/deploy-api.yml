@@ -1,0 +1,78 @@
+name: Deploy PandaBattleship API
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'PandaBattleship.API/**'
+      - 'PandaBattleship.ServiceDefaults/**'
+      - '.github/workflows/deploy-api.yml'
+
+env:
+  ACR_NAME: acrpandabattleshipdev
+  RESOURCE_GROUP: rg-pandabattleship-dev-uksouth
+  CONTAINER_APP_NAME: ca-pandabattleship-api-dev
+  IMAGE_NAME: pandabattleship-api
+
+jobs:
+  build:
+    uses: ./.github/workflows/reusable-build-api.yml
+
+  build-and-push-docker:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    outputs:
+      image-tag: ${{ steps.vars.outputs.image-tag }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set image tag
+        id: vars
+        run: echo "image-tag=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID_DEV }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID_DEV }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID_DEV }}
+
+      - name: Log in to ACR
+        run: az acr login --name ${{ env.ACR_NAME }}
+
+      - name: Build and push docker image
+        run: |
+          IMAGE="${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}"
+          docker build -f PandaBattleship.API/Dockerfile -t "$IMAGE:${{ steps.vars.outputs.image-tag }}" -t "$IMAGE:latest" .
+          docker push "$IMAGE:${{ steps.vars.outputs.image-tag }}"
+          docker push "$IMAGE:latest"
+
+  deploy:
+    needs: build-and-push-docker
+    runs-on: ubuntu-latest
+    # Requires a "dev" Environment configured in the repo settings
+    # (Settings -> Environments) with required reviewers, which is what
+    # gates this job on manual approval before it runs.
+    environment: dev
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID_DEV }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID_DEV }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID_DEV }}
+
+      - name: Deploy image to Container App
+        run: |
+          az containerapp update \
+            --name ${{ env.CONTAINER_APP_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --image "${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ needs.build-and-push.outputs.image-tag }}"

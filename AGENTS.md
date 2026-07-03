@@ -18,7 +18,9 @@ PandaBattleship is a learning project for building a Battleship game while explo
 | API unit tests | `PandaBattleship.API.Tests/` | xUnit tests for domain/service behavior, endpoints, and OpenAPI. |
 | API integration tests | `PandaBattleship.API.IntegrationTests/` | xUnit startup/integration checks using `WebApplicationFactory<Program>`. |
 | Infrastructure as code | `iac/` | Terraform for Azure resource group, Static Web App, Container Registry, Container Apps (API + FE) with managed identity and Log Analytics, outputs, and AzureRM backend setup. |
-| CI | `.github/workflows/build-api.yml` | Pull request workflow for API restore/build when `PandaBattleship.API/**` changes. |
+| CI | `.github/workflows/build-api.yml` | Pull request workflow for API restore/build when `PandaBattleship.API/**` changes. Calls the shared `reusable-build-api.yml` workflow. |
+| CD | `.github/workflows/deploy-api.yml` | Push-to-`main` workflow that builds/pushes the API image to ACR and deploys it to the Container App. Not triggered on pull requests. `build-and-push` job `needs` the shared `reusable-build-api.yml` workflow. Deploy job is gated behind the `dev` GitHub Environment (manual approval, configured in repo settings). |
+| CI/CD shared base | `.github/workflows/reusable-build-api.yml` | `workflow_call` reusable workflow with the API restore/build steps, called by both `build-api.yml` and `deploy-api.yml` so the build logic lives in one place. |
 | Rules/reference | `README.md`, `LITHUANIAN_RULES.md` | Project intent and game rules. |
 
 ## Current Stack
@@ -118,6 +120,7 @@ Terraform lives in `iac/`.
 | `iac/frontend.tf` | Azure Static Web App on Free tier. |
 | `iac/acr.tf` | Azure Container Registry on Basic SKU. |
 | `iac/container-app-identity.tf` | User-assigned managed identity for Container Apps, with `AcrPull` role on the ACR. |
+| `iac/github-actions-deploy.tf` | User-assigned identity + federated (OIDC) credential for the `deploy-api.yml` GitHub Actions workflow. Credential subject is scoped to the `dev` GitHub Environment. Grants `AcrPush` on the ACR and `Container Apps Contributor` on the API container app. |
 | `iac/container-apps-environment.tf` | Container Apps environment, wired to the Log Analytics workspace. |
 | `iac/container-apps.tf` | Container Apps for API (`ca-pandabattleship-api-*`) and frontend (`ca-pandabattleship-fe-*`); frontend gets `API_UPSTREAM` pointed at the API's ingress FQDN. Both ignore image-tag drift via `lifecycle.ignore_changes` (images are pushed out-of-band). |
 | `iac/log-analytics-workspace.tf` | Log Analytics workspace used by the Container Apps environment. |
@@ -215,6 +218,7 @@ Before finishing changes, run the smallest meaningful verification:
 - Change Azure infrastructure: files under `iac/`.
 - Change container builds: API/frontend Dockerfiles and frontend nginx template.
 - Change CI: `.github/workflows/build-api.yml`.
+- Change CD/deploy: `.github/workflows/deploy-api.yml` and `iac/github-actions-deploy.tf`.
 
 ## Conventions And Gotchas
 

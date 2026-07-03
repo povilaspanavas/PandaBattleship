@@ -15,3 +15,13 @@ output "container_app_api_url" {
 output "container_app_fe_url" {
   value = "https://${azurerm_container_app.pandabattleship_app_fe.ingress[0].fqdn}"
 }
+
+output "github_actions_deploy_client_id" {
+  description = "Client ID for the GitHub Actions OIDC deploy identity (set as the AZURE_CLIENT_ID_DEV repo secret)"
+  value       = azurerm_user_assigned_identity.github_actions_deploy.client_id
+}
+
+output "azure_tenant_id" {
+  description = "Azure AD tenant ID (set as the AZURE_TENANT_ID_DEV repo secret)"
+  value       = data.azurerm_client_config.current.tenant_id
+}

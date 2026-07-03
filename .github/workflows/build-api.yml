@@ -15,4 +15,5 @@ on:
 
 jobs:
   build:
+    name: API
     uses: ./.github/workflows/reusable-build-api.yml

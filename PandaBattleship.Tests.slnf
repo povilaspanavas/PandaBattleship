@@ -1,0 +1,9 @@
+{
+  "solution": {
+    "path": "PandaBattleship.sln",
+    "projects": [
+      "PandaBattleship.API.IntegrationTests\\PandaBattleship.API.IntegrationTests.csproj",
+      "PandaBattleship.API.Tests\\PandaBattleship.API.Tests.csproj"
+    ]
+  }
+}

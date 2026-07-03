@@ -5,6 +5,7 @@ on:
 
 jobs:
   build:
+    name: Restore & build
     runs-on: ubuntu-latest
     permissions:
       contents: read

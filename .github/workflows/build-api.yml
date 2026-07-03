@@ -7,10 +7,63 @@ on:
     paths:
       - 'PandaBattleship.API/**'
       - 'PandaBattleship.ServiceDefaults/**'
+      - 'PandaBattleship.AppHost/**'
+      - 'PandaBattleship.API.Tests/**'
+      - 'PandaBattleship.API.IntegrationTests/**'
+      - 'coverlet.runsettings'
       - '.github/workflows/build-api.yml'
-      - '.github/workflows/reusable-build-api.yml'
+      - '.github/scripts/test-summary.py'
 
 jobs:
-  build:
-    name: API
-    uses: ./.github/workflows/reusable-build-api.yml
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      # Builds/tests the whole solution. The Vite frontend esproj has no build
+      # configuration in the .sln, so dotnet never builds it (no npm/Vite in CI);
+      # any .NET test project added to the solution is picked up automatically.
+      - name: Restore
+        run: dotnet restore PandaBattleship.sln
+
+      - name: Build
+        run: dotnet build PandaBattleship.sln --no-restore --configuration Release
+
+      - name: Test
+        run: >
+          dotnet test PandaBattleship.sln
+          --no-build
+          --configuration Release
+          --logger "trx"
+          --collect:"XPlat Code Coverage"
+          --settings coverlet.runsettings
+          --results-directory ${{ github.workspace }}/TestResults
+
+      - name: Generate coverage report
+        if: ${{ !cancelled() }}
+        run: |
+          dotnet tool install --global dotnet-reportgenerator-globaltool
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          reportgenerator \
+            -reports:"${{ github.workspace }}/TestResults/**/coverage.cobertura.xml" \
+            -targetdir:"${{ github.workspace }}/CoverageReport" \
+            -reporttypes:MarkdownSummaryGithub
+
+      - name: Publish summary
+        if: ${{ !cancelled() }}
+        run: |
+          python3 .github/scripts/test-summary.py "${{ github.workspace }}/TestResults" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f "${{ github.workspace }}/CoverageReport/SummaryGithub.md" ]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            # Drop the "Method coverage" row (a ReportGenerator sponsors-only placeholder).
+            grep -v 'Method coverage' "${{ github.workspace }}/CoverageReport/SummaryGithub.md" >> "$GITHUB_STEP_SUMMARY"
+          fi

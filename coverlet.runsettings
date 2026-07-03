@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat Code Coverage">
+        <Configuration>
+          <!-- Keep coverage to hand-written first-party code: drop source-generated
+               files, which live under obj/. (Not CompilerGeneratedAttribute - that
+               would also exclude legitimate record types.) -->
+          <ExcludeByFile>**/obj/**/*.cs</ExcludeByFile>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

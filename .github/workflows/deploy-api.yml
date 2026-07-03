@@ -30,14 +30,14 @@ jobs:
       image-tag: ${{ steps.vars.outputs.image-tag }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set image tag
         id: vars
         run: echo "image-tag=${{ github.sha }}" >> "$GITHUB_OUTPUT"
 
       - name: Azure login (OIDC)
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID_DEV }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID_DEV }}
@@ -67,7 +67,7 @@ jobs:
 
     steps:
       - name: Azure login (OIDC)
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID_DEV }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID_DEV }}

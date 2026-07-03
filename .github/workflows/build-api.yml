@@ -10,6 +10,7 @@ on:
       - 'PandaBattleship.AppHost/**'
       - 'PandaBattleship.API.Tests/**'
       - 'PandaBattleship.API.IntegrationTests/**'
+      - 'coverlet.runsettings'
       - '.github/workflows/build-api.yml'
       - '.github/scripts/test-summary.py'
 
@@ -44,6 +45,7 @@ jobs:
           --configuration Release
           --logger "trx"
           --collect:"XPlat Code Coverage"
+          --settings coverlet.runsettings
           --results-directory ${{ github.workspace }}/TestResults
 
       - name: Generate coverage report
@@ -62,5 +64,6 @@ jobs:
           python3 .github/scripts/test-summary.py "${{ github.workspace }}/TestResults" >> "$GITHUB_STEP_SUMMARY"
           if [ -f "${{ github.workspace }}/CoverageReport/SummaryGithub.md" ]; then
             echo "" >> "$GITHUB_STEP_SUMMARY"
-            cat "${{ github.workspace }}/CoverageReport/SummaryGithub.md" >> "$GITHUB_STEP_SUMMARY"
+            # Drop the "Method coverage" row (a ReportGenerator sponsors-only placeholder).
+            grep -v 'Method coverage' "${{ github.workspace }}/CoverageReport/SummaryGithub.md" >> "$GITHUB_STEP_SUMMARY"
           fi

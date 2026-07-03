@@ -46,9 +46,9 @@ lines = [
     "",
     "| Result | Count |",
     "| :-- | --: |",
-    f"| ✅ Passed | {passed} |",
-    f"| ❌ Failed | {failed} |",
-    f"| ⏭️ Skipped | {skipped} |",
+    f"| Passed | {passed} |",
+    f"| Failed | {failed} |",
+    f"| Skipped | {skipped} |",
     f"| **Total** | **{total}** |",
 ]
 print("\n".join(lines))

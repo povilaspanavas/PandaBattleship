@@ -20,6 +20,7 @@ jobs:
     uses: ./.github/workflows/reusable-build-api.yml
 
   build-and-push-docker:
+    name: Docker Build and Push
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -53,6 +54,7 @@ jobs:
           docker push "$IMAGE:latest"
 
   deploy:
+    name: Deploy to Containers
     needs: build-and-push-docker
     runs-on: ubuntu-latest
     # Requires a "dev" Environment configured in the repo settings

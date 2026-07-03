@@ -4,14 +4,11 @@ on:
   workflow_dispatch:
   pull_request:
     branches: [ main ]
-    paths: &build-api-paths
+    paths:
       - 'PandaBattleship.API/**'
       - 'PandaBattleship.ServiceDefaults/**'
       - '.github/workflows/build-api.yml'
       - '.github/workflows/reusable-build-api.yml'
-  push:
-    branches: [ main ]
-    paths: *build-api-paths
 
 jobs:
   build:

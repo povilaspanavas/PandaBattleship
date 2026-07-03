@@ -17,7 +17,7 @@ PandaBattleship is a learning project for building a Battleship game while explo
 | Frontend | `PandaBattleship.FE/` | React 19 + TypeScript + Vite + Tailwind CSS frontend, plus Docker/nginx files and Vitest tests. |
 | API unit tests | `PandaBattleship.API.Tests/` | xUnit tests for domain/service behavior, endpoints, and OpenAPI. |
 | API integration tests | `PandaBattleship.API.IntegrationTests/` | xUnit startup/integration checks using `WebApplicationFactory<Program>`. |
-| Infrastructure as code | `iac/` | Terraform for Azure resource group, Static Web App, Container Registry, outputs, and AzureRM backend setup. |
+| Infrastructure as code | `iac/` | Terraform for Azure resource group, Static Web App, Container Registry, Container Apps (API + FE) with managed identity and Log Analytics, outputs, and AzureRM backend setup. |
 | CI | `.github/workflows/build-api.yml` | Pull request workflow for API restore/build when `PandaBattleship.API/**` changes. |
 | Rules/reference | `README.md`, `LITHUANIAN_RULES.md` | Project intent and game rules. |
 
@@ -27,7 +27,7 @@ PandaBattleship is a learning project for building a Battleship game while explo
 - Frontend: React 19.2, TypeScript, React Router 7, Vite 7, Tailwind CSS 4, SignalR client, Vitest.
 - Local orchestration: .NET Aspire AppHost.
 - Containers: `PandaBattleship.API/Dockerfile` and `PandaBattleship.FE/Dockerfile`.
-- Infrastructure: Terraform with AzureRM provider, Azure Static Web App, Azure Container Registry, Azure Resource Group.
+- Infrastructure: Terraform with AzureRM provider, Azure Static Web App, Azure Container Registry, Azure Container Apps (API + FE) with managed identity and Log Analytics, Azure Resource Group.
 
 ## Key Runtime Files
 
@@ -114,10 +114,14 @@ Terraform lives in `iac/`.
 | --- | --- |
 | `iac/setup.tf` | AzureRM provider `4.70.0`, remote AzureRM backend, subscription binding. |
 | `iac/vars.tf` | Variables: `env_id`, `location`, `static_web_app_location`, sensitive `subscription_id`, `src_key`. |
-| `iac/main.tf` | Locals, common tags, and Azure resource group. |
+| `iac/resource-group.tf` | Locals (common tags, region slugs) and Azure resource group. |
 | `iac/frontend.tf` | Azure Static Web App on Free tier. |
 | `iac/acr.tf` | Azure Container Registry on Basic SKU. |
-| `iac/outputs.tf` | Static Web App hostname and URL outputs. |
+| `iac/container-app-identity.tf` | User-assigned managed identity for Container Apps, with `AcrPull` role on the ACR. |
+| `iac/container-apps-environment.tf` | Container Apps environment, wired to the Log Analytics workspace. |
+| `iac/container-apps.tf` | Container Apps for API (`ca-pandabattleship-api-*`) and frontend (`ca-pandabattleship-fe-*`); frontend gets `API_UPSTREAM` pointed at the API's ingress FQDN. Both ignore image-tag drift via `lifecycle.ignore_changes` (images are pushed out-of-band). |
+| `iac/log-analytics-workspace.tf` | Log Analytics workspace used by the Container Apps environment. |
+| `iac/outputs.tf` | Static Web App hostname/URL and Container App API/FE URL outputs. |
 | `iac/terraform.tfvars` | Local variable values. Treat as sensitive if subscription IDs or secrets are present. |
 
 Current backend state settings in `iac/setup.tf`:

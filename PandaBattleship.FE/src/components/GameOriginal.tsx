@@ -163,37 +163,42 @@ const GameOriginal = () => {
                 <Confetti />
             )}
             <div className="flex flex-col items-center gap-1">
-                <div className="flex flex-row items-center gap-4 pb-1">
-                    { !isGameOver && <div className={`text-l font-semibold px-2 py-1 gap-2 rounded-full transition-colors tracking-wide flex items-center 
-                        ${isPlayerTurn 
-                            ? ' bg-blue-200 text-cyan-700 ' 
-                                : 'bg-rose-100 text-rose-700 font-semibold tracking-wide animate-pulse'}`}>
-                            {isPlayerTurn ? "Aiming..." : "Enemy Attacking..."}
+                {/* Stacked on small screens, side by side from lg (1024px) up */}
+                <div className="flex flex-col lg:flex-row lg:items-start gap-1 lg:gap-10">
+                    <div className="flex flex-col items-center gap-1">
+                        <div className="flex flex-row items-center gap-4 pb-1">
+                            { !isGameOver && <div className={`text-l font-semibold px-2 py-1 gap-2 rounded-full transition-colors tracking-wide flex items-center
+                                ${isPlayerTurn
+                                    ? ' bg-blue-200 text-cyan-700 '
+                                        : 'bg-rose-100 text-rose-700 font-semibold tracking-wide animate-pulse'}`}>
+                                    {isPlayerTurn ? "Aiming..." : "Enemy Attacking..."}
+                                </div>
+                            }
+
+                            { // add a new game button
+                                isGameOver &&
+                                <button
+                                    onClick={startNewGame}
+                                    className="text-l gap-2 py-1 px-1 rounded-full bg-amber-300 hover:bg-amber-100
+                                    shadow-sm font-poppins font-semibold text-cyan-700 hover:text-cyan-600 transition-colors">
+                                    New Game
+                                </button>
+                            }
+                            <h2 className="text-l gap-2 py-1 px-1 rounded-full bg-white shadow-sm font-poppins font-semibold text-gray-500">🎯 Enemy Waters</h2>
                         </div>
-                    }
 
-                    { // add a new game button
-                        isGameOver &&
-                        <button
-                            onClick={startNewGame}
-                            className="text-l gap-2 py-1 px-1 rounded-full bg-amber-300 hover:bg-amber-100
-                            shadow-sm font-poppins font-semibold text-cyan-700 hover:text-cyan-600 transition-colors">
-                            New Game
-                        </button>
-                    }
-                    <h2 className="text-l gap-2 py-1 px-1 rounded-full bg-white shadow-sm font-poppins font-semibold text-gray-500">🎯 Enemy Waters</h2>
-                </div>
+                        <div className="flex flex-col items-center">
+                            <GridOriginal grid={enemyGrid} onCellClick={handleEnemyCellClick} waiting={!isPlayerTurn || isGameOver} />
+                            {isGameOver && !didPlayerWin && (
+                                <PandaRage />
+                            )}
+                        </div>
+                    </div>
 
-                <div className="flex flex-col items-center">
-                    <GridOriginal grid={enemyGrid} onCellClick={handleEnemyCellClick} waiting={!isPlayerTurn || isGameOver} />
-                    {isGameOver && !didPlayerWin && (
-                        <PandaRage />
-                    )}
-                </div>
-
-                <div className="flex flex-col gap-1 items-center">
-                    <h2 className="text-l gap-2 py-1 px-1 rounded-full bg-white shadow-sm font-poppins font-semibold text-gray-500">🚢 Your Fleet</h2>
-                    <GridOriginal grid={playerGrid} onCellClick={null} isPlayerGrid={true} disabled={true} />
+                    <div className="flex flex-col gap-1 items-center">
+                        <h2 className="text-l gap-2 py-1 px-1 rounded-full bg-white shadow-sm font-poppins font-semibold text-gray-500">🚢 Your Fleet</h2>
+                        <GridOriginal grid={playerGrid} onCellClick={null} isPlayerGrid={true} disabled={true} />
+                    </div>
                 </div>
 
                 <div className="text-xs text-gray-500 max-h-24 overflow-y-auto">

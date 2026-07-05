@@ -49,3 +49,9 @@ resource "azurerm_role_assignment" "github_actions_container_app_deploy" {
   role_definition_name = "Container Apps Contributor"
   principal_id         = azurerm_user_assigned_identity.github_actions_deploy.principal_id
 }
+
+resource "azurerm_role_assignment" "github_actions_container_app_fe_deploy" {
+  scope                = azurerm_container_app.pandabattleship_app_fe.id
+  role_definition_name = "Container Apps Contributor"
+  principal_id         = azurerm_user_assigned_identity.github_actions_deploy.principal_id
+}

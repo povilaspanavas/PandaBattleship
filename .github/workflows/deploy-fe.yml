@@ -1,24 +1,23 @@
-name: Deploy PandaBattleship API
+name: Deploy PandaBattleship FE
 
 on:
   push:
     branches: [ main ]
     paths:
-      - 'PandaBattleship.API/**'
-      - 'PandaBattleship.ServiceDefaults/**'
-      - '.github/workflows/deploy-api.yml'
-      - '.github/workflows/reusable-build-api.yml'
+      - 'PandaBattleship.FE/**'
+      - '.github/workflows/deploy-fe.yml'
+      - '.github/workflows/reusable-build-fe.yml'
 
 env:
   ACR_NAME: acrpandabattleshipdev
   RESOURCE_GROUP: rg-pandabattleship-dev-uksouth
-  CONTAINER_APP_NAME: ca-pandabattleship-api-dev
-  IMAGE_NAME: pandabattleship-api
+  CONTAINER_APP_NAME: ca-pandabattleship-fe-dev
+  IMAGE_NAME: pandabattleship-fe
 
 jobs:
   build:
-    name: API
-    uses: ./.github/workflows/reusable-build-api.yml
+    name: FE
+    uses: ./.github/workflows/reusable-build-fe.yml
 
   build-and-push-docker:
     name: Docker Build and Push
@@ -50,7 +49,7 @@ jobs:
       - name: Build and push docker image
         run: |
           IMAGE="${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}"
-          docker build -f PandaBattleship.API/Dockerfile -t "$IMAGE:${{ steps.vars.outputs.image-tag }}" -t "$IMAGE:latest" .
+          docker build -f PandaBattleship.FE/Dockerfile -t "$IMAGE:${{ steps.vars.outputs.image-tag }}" -t "$IMAGE:latest" PandaBattleship.FE
           docker push "$IMAGE:${{ steps.vars.outputs.image-tag }}"
           docker push "$IMAGE:latest"
 

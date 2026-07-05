@@ -1,0 +1,38 @@
+name: Build PandaBattleship FE
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'PandaBattleship.FE/**'
+      - '.github/workflows/build-fe.yml'
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: PandaBattleship.FE/package-lock.json
+
+      - name: Install dependencies
+        working-directory: PandaBattleship.FE
+        run: npm ci
+
+      - name: Build
+        working-directory: PandaBattleship.FE
+        run: npm run build
+
+      - name: Test
+        working-directory: PandaBattleship.FE
+        run: npx vitest run

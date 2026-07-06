@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { SHIP_LAYOUTS } from '../constants/shipLayouts';
 import { createEmptyGrid, findSunkenShip, markSunkShipOnGrid } from '../utils/gameHelpers';
 import { processAiShot, AI_SHOT_DELAY } from '../utils/aiPlayer';
+import { THEMES, CLASSIC_THEME } from '../constants/themes';
 import Confetti from 'react-confetti'
 import GridOriginal from './GridOriginal';
 import PandaRage from "./PandaRage";
@@ -21,6 +22,7 @@ const GameOriginal = () => {
     const [didPlayerWin, setDidPlayerWin] = useState(false);
     const aiTargetStackRef = useRef<TargetStack>([]);
     const playerDeadShipsRef = useRef(0);
+    const [theme, setTheme] = useState(CLASSIC_THEME);
 
     function startNewGame() {
         // Reset refs used during AI turn loop
@@ -163,6 +165,17 @@ const GameOriginal = () => {
                 <Confetti />
             )}
             <div className="flex flex-col items-center gap-1">
+                <div className="flex items-center gap-2 pb-1">
+                    <label htmlFor="theme-select" className="text-xs text-gray-500 font-semibold">Theme</label>
+                    <select
+                        id="theme-select"
+                        value={theme.name}
+                        onChange={e => setTheme(THEMES.find(t => t.name === e.target.value) ?? CLASSIC_THEME)}
+                        className="text-xs rounded-full bg-white shadow-sm px-2 py-1 text-gray-600 font-semibold cursor-pointer"
+                    >
+                        {THEMES.map(t => <option key={t.name} value={t.name}>{t.name}</option>)}
+                    </select>
+                </div>
                 {/* Stacked on small screens, side by side from lg (1024px) up */}
                 <div className="flex flex-col lg:flex-row lg:items-start gap-1 lg:gap-10">
                     <div className="flex flex-col items-center gap-1">
@@ -171,7 +184,7 @@ const GameOriginal = () => {
                                 ${isPlayerTurn
                                     ? ' bg-blue-200 text-cyan-700 '
                                         : 'bg-rose-100 text-rose-700 font-semibold tracking-wide animate-pulse'}`}>
-                                    {isPlayerTurn ? "Aiming..." : "Enemy Attacking..."}
+                                    {isPlayerTurn ? theme.labels.aiming : theme.labels.enemyAttacking}
                                 </div>
                             }
 
@@ -184,11 +197,11 @@ const GameOriginal = () => {
                                     New Game
                                 </button>
                             }
-                            <h2 className="text-l gap-2 py-1 px-1 rounded-full bg-white shadow-sm font-poppins font-semibold text-gray-500">🎯 Enemy Waters</h2>
+                            <h2 className="text-l gap-2 py-1 px-1 rounded-full bg-white shadow-sm font-poppins font-semibold text-gray-500">{theme.labels.enemyWaters}</h2>
                         </div>
 
                         <div className="flex flex-col items-center">
-                            <GridOriginal grid={enemyGrid} onCellClick={handleEnemyCellClick} waiting={!isPlayerTurn || isGameOver} />
+                            <GridOriginal grid={enemyGrid} onCellClick={handleEnemyCellClick} waiting={!isPlayerTurn || isGameOver} theme={theme} />
                             {isGameOver && !didPlayerWin && (
                                 <PandaRage />
                             )}
@@ -196,13 +209,13 @@ const GameOriginal = () => {
                     </div>
 
                     <div className="flex flex-col gap-1 items-center">
-                        <h2 className="text-l gap-2 py-1 px-1 rounded-full bg-white shadow-sm font-poppins font-semibold text-gray-500">🚢 Your Fleet</h2>
-                        <GridOriginal grid={playerGrid} onCellClick={null} isPlayerGrid={true} disabled={true} />
+                        <h2 className="text-l gap-2 py-1 px-1 rounded-full bg-white shadow-sm font-poppins font-semibold text-gray-500">{theme.labels.yourFleet}</h2>
+                        <GridOriginal grid={playerGrid} onCellClick={null} isPlayerGrid={true} disabled={true} theme={theme} />
                     </div>
                 </div>
 
                 <div className="text-xs text-gray-500 max-h-24 overflow-y-auto">
-                    AI Shot History: {aiShotHistory.map((s, i) => `${i+1}: ${s.isHit ? '🔥' : 'O'} (${s.row},${s.col}) `)}
+                    AI Shot History: {aiShotHistory.map((s, i) => `${i+1}: ${s.isHit ? theme.icons.hit : theme.icons.miss} (${s.row},${s.col}) `)}
                 </div>
             </div>
         </>

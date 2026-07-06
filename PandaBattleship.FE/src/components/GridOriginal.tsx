@@ -1,4 +1,5 @@
 import type { SinglePlayerGrid } from "../types/SinglePlayerGame";
+import { CLASSIC_THEME, type GameTheme } from "../constants/themes";
 
 interface GridOriginalProps {
     grid: SinglePlayerGrid;
@@ -6,9 +7,10 @@ interface GridOriginalProps {
     isPlayerGrid?: boolean;
     disabled?: boolean;
     waiting?: boolean;
+    theme?: GameTheme;
 }
 
-const GridOriginal = ({ grid, onCellClick, isPlayerGrid = false, disabled = false, waiting = false }: GridOriginalProps) => {
+const GridOriginal = ({ grid, onCellClick, isPlayerGrid = false, disabled = false, waiting = false, theme = CLASSIC_THEME }: GridOriginalProps) => {
     const cursorType = disabled ? 'cursor-not-allowed'
         : waiting ? 'cursor-wait' : 'cursor-pointer hover:bg-gray-700';
     return (
@@ -17,7 +19,7 @@ const GridOriginal = ({ grid, onCellClick, isPlayerGrid = false, disabled = fals
                 rowArr.map((cell, colIndex) => (
                     <div
                         key={`${rowIndex}-${colIndex}`}
-                        className={`w-8 h-8 sm:w-10 sm:h-10 border border-gray-500 flex items-center justify-center transition-colors ${
+                        className={`w-8 h-8 sm:w-10 sm:h-10 ${theme.iconClass} border border-gray-500 flex items-center justify-center transition-colors ${
                             cursorType    
                         } ${
                             cell === 'sunk' ? 'bg-orange-500' :
@@ -27,7 +29,7 @@ const GridOriginal = ({ grid, onCellClick, isPlayerGrid = false, disabled = fals
                         }`}
                         onClick={() => !disabled && onCellClick && onCellClick(rowIndex, colIndex)}
                     >
-                        {cell === 'hit' ? '🔥' : (cell === 'miss' || cell === 'blocked') ? 'O' : ''}
+                        {cell === 'hit' ? theme.icons.hit : (cell === 'miss' || cell === 'blocked') ? theme.icons.miss : ''}
                     </div>
                 ))
             )}

@@ -5,6 +5,7 @@ import { processAiShot, AI_SHOT_DELAY } from '../utils/aiPlayer';
 import { THEMES, CLASSIC_THEME } from '../constants/themes';
 import Confetti from 'react-confetti'
 import GridOriginal from './GridOriginal';
+import FleetBuilder from './FleetBuilder';
 import PandaRage from "./PandaRage";
 import type { ShipLayout, ShotResult, SinglePlayerGrid, TargetStack } from "../types/SinglePlayerGame";
 
@@ -23,8 +24,9 @@ const GameOriginal = () => {
     const aiTargetStackRef = useRef<TargetStack>([]);
     const playerDeadShipsRef = useRef(0);
     const [theme, setTheme] = useState(CLASSIC_THEME);
+    const [isBuildingFleet, setIsBuildingFleet] = useState(false);
 
-    function startNewGame() {
+    function startNewGame(customPlayerLayout?: ShipLayout) {
         // Reset refs used during AI turn loop
         aiTargetStackRef.current = [];
         playerDeadShipsRef.current = 0;
@@ -36,9 +38,10 @@ const GameOriginal = () => {
         setEnemyDeadShips(0);
         setDidPlayerWin(false);
 
-        // Initialize Player Grid
+        // Initialize Player Grid: use the custom-built fleet when provided,
+        // otherwise pick a random predefined layout
         const playerLayoutIdx = Math.floor(Math.random() * SHIP_LAYOUTS.length);
-        const playerLayout = SHIP_LAYOUTS[playerLayoutIdx];
+        const playerLayout = customPlayerLayout ?? SHIP_LAYOUTS[playerLayoutIdx];
         console.log('Initializing game with player layout:', playerLayout.name);
         console.log('Player has', playerLayout.ships.length, 'ships');
         setPlayerShipLayout(playerLayout);
@@ -175,7 +178,30 @@ const GameOriginal = () => {
                     >
                         {THEMES.map(t => <option key={t.name} value={t.name}>{t.name}</option>)}
                     </select>
+                    {!isBuildingFleet && (
+                        <button
+                            onClick={() => setIsBuildingFleet(true)}
+                            // Disabled during the AI turn: starting a new game
+                            // mid-loop would let stale AI shots corrupt the fresh grid
+                            disabled={!isPlayerTurn && !isGameOver}
+                            className="text-xs rounded-full bg-white shadow-sm px-2 py-1 text-cyan-700 font-semibold
+                                hover:text-cyan-500 transition-colors cursor-pointer
+                                disabled:text-gray-300 disabled:cursor-not-allowed"
+                        >
+                            🛠️ Build Fleet
+                        </button>
+                    )}
                 </div>
+                {isBuildingFleet ? (
+                <FleetBuilder
+                    onStart={layout => {
+                        setIsBuildingFleet(false);
+                        startNewGame(layout);
+                    }}
+                    onCancel={() => setIsBuildingFleet(false)}
+                />
+                ) : (
+                <>
                 {/* Stacked on small screens, side by side from lg (1024px) up */}
                 <div className="flex flex-col lg:flex-row lg:items-start gap-1 lg:gap-10">
                     <div className="flex flex-col items-center gap-1">
@@ -191,7 +217,7 @@ const GameOriginal = () => {
                             { // add a new game button
                                 isGameOver &&
                                 <button
-                                    onClick={startNewGame}
+                                    onClick={() => startNewGame()}
                                     className="text-l gap-2 py-1 px-1 rounded-full bg-amber-300 hover:bg-amber-100
                                     shadow-sm font-poppins font-semibold text-cyan-700 hover:text-cyan-600 transition-colors">
                                     New Game
@@ -217,6 +243,8 @@ const GameOriginal = () => {
                 <div className="text-xs text-gray-500 max-h-24 overflow-y-auto">
                     AI Shot History: {aiShotHistory.map((s, i) => `${i+1}: ${s.isHit ? theme.icons.hit : theme.icons.miss} (${s.row},${s.col}) `)}
                 </div>
+                </>
+                )}
             </div>
         </>
     );

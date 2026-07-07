@@ -99,6 +99,11 @@ PandaBattleship is a learning project for building a Battleship game while explo
 
 - `PandaBattleship.FE/src/components/GameOriginal.tsx`
   - Original local/single-player style game component.
+  - "Build Fleet" button opens `FleetBuilder`; `startNewGame` accepts an optional custom player layout.
+
+- `PandaBattleship.FE/src/components/FleetBuilder.tsx`
+  - Fleet builder for the AI game: drag ships with pointer events, rotate, and cycle shapes.
+  - Pure logic (shape catalogue, rotation, no-touching validation) lives in `PandaBattleship.FE/src/utils/fleetBuilder.ts`.
 
 - `PandaBattleship.FE/src/constants/shipLayouts.ts`
   - Frontend copy of ship layouts for local/AI behavior.
@@ -198,6 +203,9 @@ terraform apply
 - `PandaBattleship.FE/tests/shipLayouts.test.ts`
   - Vitest tests for ship layouts, AI shot behavior, and rendered hit cells.
 
+- `PandaBattleship.FE/tests/fleetBuilder.test.ts`
+  - Vitest tests for fleet builder shapes, rotation, and placement validation.
+
 Before finishing changes, run the smallest meaningful verification:
 
 - API/domain changes: `dotnet test`
@@ -209,6 +217,7 @@ Before finishing changes, run the smallest meaningful verification:
 - Add or change API endpoints: `PandaBattleship.API/Program.cs`.
 - Change PvP realtime behavior: `PandaBattleship.API/Hubs/GameHub.cs`, `PandaBattleship.FE/src/hooks/useGameHub.ts`, and `PandaBattleship.FE/src/components/GamePage.tsx`.
 - Change game rules: `PandaBattleship.API/Domain/`, `PandaBattleship.API/Services/GameService.cs`, and matching tests.
+- Change fleet building (AI game): `PandaBattleship.FE/src/components/FleetBuilder.tsx`, `PandaBattleship.FE/src/utils/fleetBuilder.ts`, and `PandaBattleship.FE/tests/fleetBuilder.test.ts`.
 - Change ship layouts:
   - Backend: `PandaBattleship.API/Constants/ShipLayouts.json`
   - Frontend: `PandaBattleship.FE/src/constants/shipLayouts.ts`

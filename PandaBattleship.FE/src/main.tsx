@@ -5,6 +5,7 @@ import './index.css'
 import AppOriginal from './AppOriginal'
 import { GameBoard } from "./components/GamePage";
 import { PvpLobbyPage } from "./components/PvpLobbyPage";
+import { HelpPage } from "./components/HelpPage";
 
 const rootElement = document.getElementById('root');
 
@@ -20,6 +21,7 @@ createRoot(rootElement).render(
                 <Route path="/ai" element={<AppOriginal />}/>
                 <Route path="/pvp" element={<PvpLobbyPage />}/>
                 <Route path="/pvp/:gameId" element={<GameBoard />}/>
+                <Route path="/help" element={<HelpPage />}/>
             </Routes>
         </BrowserRouter>
     </StrictMode>

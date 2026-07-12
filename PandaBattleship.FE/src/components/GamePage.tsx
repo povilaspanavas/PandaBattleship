@@ -27,7 +27,7 @@ export const GameBoard: React.FC = () => {
 
     if (!gameState) {
         return (
-            <div className="max-w-5xl mx-auto p-1 text-center min-h-screen flex flex-col items-center">
+            <div className="max-w-5xl mx-auto px-1 pb-1 pt-4 text-center min-h-screen flex flex-col items-center">
                 <PageHeader />
                 <InviteBar gameId={gameId} inviteUrl={inviteUrl} copyStatus={copyStatus} onCopy={copyInviteUrl} />
                 <div className="text-l font-semibold px-2 py-1 gap-2 rounded-full bg-blue-200 text-cyan-700 tracking-wide">
@@ -46,7 +46,7 @@ export const GameBoard: React.FC = () => {
     return (
         <>
             {didPlayerWin && <Confetti />}
-            <div className="max-w-5xl mx-auto p-1 text-center min-h-screen flex flex-col items-center">
+            <div className="max-w-5xl mx-auto px-1 pb-1 pt-4 text-center min-h-screen flex flex-col items-center">
                 <PageHeader />
                 <InviteBar gameId={gameId} inviteUrl={inviteUrl} copyStatus={copyStatus} onCopy={copyInviteUrl} />
 

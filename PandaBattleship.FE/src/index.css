@@ -9,6 +9,8 @@
   :root {
     @apply font-sans text-white bg-gray-900;
     color-scheme: light dark;
+    /* Reserve scrollbar space so centered content doesn't shift between short and tall pages */
+    scrollbar-gutter: stable;
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;

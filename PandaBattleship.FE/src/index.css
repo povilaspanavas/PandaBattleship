@@ -23,6 +23,13 @@
     @apply font-medium text-blue-500 no-underline hover:text-blue-400;
   }
 
+  /* Opt a link out of the global blue link color (e.g. brand/card links that
+     carry their own styling). The :hover selector out-specifies `a:hover`. */
+  a.link-plain,
+  a.link-plain:hover {
+    @apply text-inherit;
+  }
+
   body {
     @apply m-0 flex items-center justify-center min-h-screen min-w-80;
   }

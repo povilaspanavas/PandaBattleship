@@ -9,9 +9,9 @@ import pandaLogo from "../assets/brave_panda_1024.png";
 
 export const PageHeader = () => (
     <header className="flex flex-col items-center">
-        <Link to="/" className="flex items-center gap-2 text-inherit hover:text-inherit">
+        <Link to="/" className="flex items-center gap-2 link-plain">
             <h1 className="font-bold text-3xl">Panda Battleship</h1>
-            <img src={pandaLogo} className="max-w-30" alt="Panda Battleship" />
+            <img src={pandaLogo} className="max-w-[7.5rem]" alt="Panda Battleship" />
         </Link>
         {/*<nav className="flex gap-4 text-sm font-semibold text-cyan-700">*/}
         {/*    {navLinks.map((link) => (*/}

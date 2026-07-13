@@ -4,7 +4,7 @@ import { processAiShot } from "../src/utils/aiPlayer";
 import { createEmptyGrid } from "../src/utils/gameHelpers";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import GridOriginal from "../src/components/GridOriginal";
+import SinglePlayerBoard from "../src/components/SinglePlayerBoard";
 import type { Ship } from "../src/types/SinglePlayerGame";
 
 describe('shipLayouts', () => {
@@ -85,7 +85,7 @@ describe('shipLayouts', () => {
     const grid = createEmptyGrid();
     grid[1][1] = "hit";
 
-    const markup = renderToStaticMarkup(createElement(GridOriginal, {
+    const markup = renderToStaticMarkup(createElement(SinglePlayerBoard, {
       grid,
       isPlayerGrid: true,
       disabled: true,

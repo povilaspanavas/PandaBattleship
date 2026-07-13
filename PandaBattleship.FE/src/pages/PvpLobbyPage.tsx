@@ -1,6 +1,6 @@
 import { type SubmitEventHandler, useState } from "react";
 import { useNavigate } from "react-router";
-import { PageHeader } from "./PageHeader";
+import { PageHeader } from "../components/PageHeader";
 
 interface CreateGameResponse {
     gameId: string;

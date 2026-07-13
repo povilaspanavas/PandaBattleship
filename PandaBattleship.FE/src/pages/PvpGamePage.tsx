@@ -2,12 +2,12 @@ import { useState } from "react";
 import Confetti from "react-confetti";
 import { useParams } from "react-router";
 import { useGameHub } from "../hooks/useGameHub";
-import { Board } from "./Board";
-import PandaRage from "./PandaRage";
+import { Board } from "../components/Board";
+import PandaRage from "../components/PandaRage";
 import getOrCreatePlayerId from "../utils/playerId";
-import { PageHeader } from "./PageHeader";
+import { PageHeader } from "../components/PageHeader";
 
-export const GameBoard: React.FC = () => {
+export const PvpGamePage: React.FC = () => {
     const { gameId: routeGameId = "" } = useParams();
     const gameId = routeGameId.toUpperCase();
     const playerId = getOrCreatePlayerId();

@@ -1,7 +1,7 @@
 import type { SinglePlayerGrid } from "../types/SinglePlayerGame";
 import { CLASSIC_THEME, type GameTheme } from "../constants/themes";
 
-interface GridOriginalProps {
+interface SinglePlayerBoardProps {
     grid: SinglePlayerGrid;
     onCellClick?: ((row: number, col: number) => void) | null;
     isPlayerGrid?: boolean;
@@ -10,7 +10,7 @@ interface GridOriginalProps {
     theme?: GameTheme;
 }
 
-const GridOriginal = ({ grid, onCellClick, isPlayerGrid = false, disabled = false, waiting = false, theme = CLASSIC_THEME }: GridOriginalProps) => {
+const SinglePlayerBoard = ({ grid, onCellClick, isPlayerGrid = false, disabled = false, waiting = false, theme = CLASSIC_THEME }: SinglePlayerBoardProps) => {
     const cursorType = disabled ? 'cursor-not-allowed'
         : waiting ? 'cursor-wait' : 'cursor-pointer hover:bg-gray-700';
     return (
@@ -37,4 +37,4 @@ const GridOriginal = ({ grid, onCellClick, isPlayerGrid = false, disabled = fals
     );
 };
 
-export default GridOriginal;
+export default SinglePlayerBoard;

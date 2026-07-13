@@ -10,9 +10,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Script Include="src\components\Board.tsx" />
-    <Script Include="src\components\GamePage.tsx" />
+    <Script Include="src\pages\PvpGamePage.tsx" />
     <Script Include="src\components\PageHeader.tsx" />
-    <Script Include="src\components\PvpLobbyPage.tsx" />
+    <Script Include="src\pages\PvpLobbyPage.tsx" />
     <Script Include="src\hooks\useGameHub.ts" />
     <Script Include="src\types\GameState.ts" />
     <Script Include="src\utils\playerId.ts" />

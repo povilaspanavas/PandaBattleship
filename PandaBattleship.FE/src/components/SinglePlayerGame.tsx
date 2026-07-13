@@ -4,13 +4,13 @@ import { createEmptyGrid, findSunkenShip, markSunkShipOnGrid } from '../utils/ga
 import { processAiShot, AI_SHOT_DELAY } from '../utils/aiPlayer';
 import { THEMES, CLASSIC_THEME } from '../constants/themes';
 import Confetti from 'react-confetti'
-import GridOriginal from './GridOriginal';
+import SinglePlayerBoard from './SinglePlayerBoard';
 import FleetBuilder from './FleetBuilder';
 import PandaRage from "./PandaRage";
 import type { ShipLayout, ShotResult, SinglePlayerGrid, TargetStack } from "../types/SinglePlayerGame";
 
 
-const GameOriginal = () => {
+const SinglePlayerGame = () => {
 
     const [playerGrid, setPlayerGrid] = useState<SinglePlayerGrid>(createEmptyGrid());
     const [enemyGrid, setEnemyGrid] = useState<SinglePlayerGrid>(createEmptyGrid());
@@ -227,7 +227,7 @@ const GameOriginal = () => {
                         </div>
 
                         <div className="flex flex-col items-center">
-                            <GridOriginal grid={enemyGrid} onCellClick={handleEnemyCellClick} waiting={!isPlayerTurn || isGameOver} theme={theme} />
+                            <SinglePlayerBoard grid={enemyGrid} onCellClick={handleEnemyCellClick} waiting={!isPlayerTurn || isGameOver} theme={theme} />
                             {isGameOver && !didPlayerWin && (
                                 <PandaRage />
                             )}
@@ -236,7 +236,7 @@ const GameOriginal = () => {
 
                     <div className="flex flex-col gap-1 items-center">
                         <h2 className="text-l gap-2 py-1 px-1 rounded-full bg-white shadow-sm font-poppins font-semibold text-gray-500">{theme.labels.yourFleet}</h2>
-                        <GridOriginal grid={playerGrid} onCellClick={null} isPlayerGrid={true} disabled={true} theme={theme} />
+                        <SinglePlayerBoard grid={playerGrid} onCellClick={null} isPlayerGrid={true} disabled={true} theme={theme} />
                     </div>
                 </div>
 
@@ -250,4 +250,4 @@ const GameOriginal = () => {
     );
 };
 
-export default GameOriginal;
+export default SinglePlayerGame;

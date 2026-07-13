@@ -2,12 +2,12 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from "react-router";
 import './index.css'
-import AppOriginal from './AppOriginal'
-import { GameBoard } from "./components/GamePage";
-import { PvpLobbyPage } from "./components/PvpLobbyPage";
-import { HelpPage } from "./components/HelpPage";
-import { HomePage } from "./components/HomePage";
-import { AllShipLayoutsPage } from "./components/AllShipLayoutsPage";
+import SinglePlayerPage from './pages/SinglePlayerPage'
+import { PvpGamePage } from "./pages/PvpGamePage";
+import { PvpLobbyPage } from "./pages/PvpLobbyPage";
+import { HelpPage } from "./pages/HelpPage";
+import { HomePage } from "./pages/HomePage";
+import { AllShipLayoutsPage } from "./pages/AllShipLayoutsPage";
 
 const rootElement = document.getElementById('root');
 
@@ -20,9 +20,9 @@ createRoot(rootElement).render(
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<HomePage />}/>
-                <Route path="/ai" element={<AppOriginal />}/>
+                <Route path="/ai" element={<SinglePlayerPage />}/>
                 <Route path="/pvp" element={<PvpLobbyPage />}/>
-                <Route path="/pvp/:gameId" element={<GameBoard />}/>
+                <Route path="/pvp/:gameId" element={<PvpGamePage />}/>
                 <Route path="/help" element={<HelpPage />}/>
                 <Route path="/all-ship-layouts" element={<AllShipLayoutsPage />}/>
             </Routes>

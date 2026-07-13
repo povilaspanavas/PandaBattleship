@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { PageHeader } from "./PageHeader";
+import { PageHeader } from "../components/PageHeader";
 
 interface GameLink {
     to: string;

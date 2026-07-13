@@ -1,5 +1,4 @@
 import GameOriginal from './components/GameOriginal';
-import DisplayAllLayouts from './components/DisplayAllLayouts';
 import { PageHeader } from './components/PageHeader';
 
 export default function AppOriginal() {
@@ -8,10 +7,6 @@ export default function AppOriginal() {
             <PageHeader />
             <div className="select-none">
                 <GameOriginal />
-            </div>
-
-            <div className="mt-20 w-full border-t border-gray-700 pt-10">
-                <DisplayAllLayouts />
             </div>
         </div>
     )

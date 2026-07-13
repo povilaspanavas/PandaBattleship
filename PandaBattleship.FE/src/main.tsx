@@ -7,6 +7,7 @@ import { GameBoard } from "./components/GamePage";
 import { PvpLobbyPage } from "./components/PvpLobbyPage";
 import { HelpPage } from "./components/HelpPage";
 import { HomePage } from "./components/HomePage";
+import { AllShipLayoutsPage } from "./components/AllShipLayoutsPage";
 
 const rootElement = document.getElementById('root');
 
@@ -23,6 +24,7 @@ createRoot(rootElement).render(
                 <Route path="/pvp" element={<PvpLobbyPage />}/>
                 <Route path="/pvp/:gameId" element={<GameBoard />}/>
                 <Route path="/help" element={<HelpPage />}/>
+                <Route path="/all-ship-layouts" element={<AllShipLayoutsPage />}/>
             </Routes>
         </BrowserRouter>
     </StrictMode>

@@ -31,8 +31,6 @@ const DisplayAllLayouts = () => {
                                             cell === 'ship' ? 'bg-blue-600' : 'bg-gray-800'
                                         }`}
                                     >
-                                        {/* Optional: coordinate debug */}
-                                        {/* <span className="text-[8px] opacity-20">{rowIndex},{colIndex}</span> */}
                                     </div>
                                 ))
                             )}

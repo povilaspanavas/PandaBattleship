@@ -15,34 +15,24 @@ This document captures only the project‑specific details needed to work effici
     - `dotnet build .\PandaBattleship.sln -v minimal`
 
 - Running the distributed app (recommended): Aspire AppHost
-  - The AppHost runs Postgres (container), the API, and the FE together, wiring endpoints/URL discovery.
-  - Secrets/parameters required by AppHost (see `PandaBattleship.AppHost\AppHost.cs`):
-    - Parameters: `DbUserName`, `DbPassword` (marked as `secret: true`).
-  - First‑time setup (user‑secrets stored on your machine):
+  - The AppHost runs the API and the FE together, wiring endpoints/URL discovery.
+  - Start the whole app:
+    - `dotnet run --project .\PandaBattleship.AppHost`
+  - No secrets/parameters are required to run. A PostgreSQL resource (Parameters `DbUserName`/`DbPassword`, port `58123`, database `pandaDb`) is present but **commented out** in `PandaBattleship.AppHost\AppHost.cs`. If you re-enable it, add the user‑secrets first:
     - `dotnet user-secrets init --project .\PandaBattleship.AppHost`
     - `dotnet user-secrets set "Parameters:DbUserName" "postgres" --project .\PandaBattleship.AppHost`
     - `dotnet user-secrets set "Parameters:DbPassword" "postgres" --project .\PandaBattleship.AppHost`
-  - Start the whole app:
-    - `dotnet run --project .\PandaBattleship.AppHost`
-  - Postgres details (from `AppHost.cs`):
-    - Host: `localhost`
-    - Port: `58123`
-    - Database: `pandaDb`
-    - These are published externally by the Aspire containerized Postgres resource.
 
 - Running the API standalone (without AppHost)
-  - The API (`PandaBattleship.API`) uses `builder.AddNpgsqlDataSource("db")` which reads `ConnectionStrings:db`.
-  - Provide a connection string via env var when launching locally:
-    - PowerShell example:
-      - `$env:ConnectionStrings__db = "Host=localhost;Port=58123;Database=pandaDb;Username=postgres;Password=postgres"`
-      - `dotnet run --project .\PandaBattleship.API`
+  - `dotnet run --project .\PandaBattleship.API --urls https://localhost:5001`
+  - No database is required; the API keeps game state in memory (`GameService` singleton). The `builder.AddNpgsqlDataSource("db")` call is currently commented out in `Program.cs`.
   - HTTPS is enabled; Kestrel dev certs may be needed (`dotnet dev-certs https --trust`).
 
 - Running the FE standalone
   - From `PandaBattleship.FE`:
     - `npm ci`
-    - `npm run dev`
-  - Current FE does not call the backend yet; no API base URL configuration is required at this time. AppHost can also start the FE as an NPM app with external HTTP endpoints published.
+    - `npm run dev`  # Vite dev server on port 10109
+  - PvP mode calls the API (`POST /games`) and the SignalR hub `/gamehub`. During local dev, Vite proxies `/games` and `/gamehub` to `https://localhost:5001` (see `vite.config.js`), so run the API (or AppHost) alongside the FE for PvP. Single‑player vs AI (`/ai`) is fully client‑side and needs no backend.
 
 ---
 
@@ -51,10 +41,12 @@ This document captures only the project‑specific details needed to work effici
 - API (see `PandaBattleship.API\Program.cs`):
   - `/openapi/v1.json` — OpenAPI document (exposed only in Development)
   - `/health` — Health check UI payload (uses `HealthChecks.UI.Client`)
-  - `/db-check` — Simple DB connectivity probe that creates a table/row and returns `{ message, rowCount }` (requires the Postgres instance to be running and reachable)
+  - `POST /games` — create a new PvP game
+  - `POST /games/{gameId}/attacks` — make an attack
+  - `/gamehub` — SignalR hub for realtime PvP (requires `gameId` and `playerId` query params)
 
 Notes:
-- When running tests or the API without the Aspire Postgres container, avoid calling `/db-check` as it will fail without a DB.
+- A `/db-check` probe exists but is commented out in `Program.cs` alongside the Npgsql data source.
 
 ---
 
@@ -70,10 +62,10 @@ Notes:
   - Single project:
     - `dotnet test .\PandaBattleship.API.Tests\PandaBattleship.API.Tests.csproj -v minimal`
   - Example single test (by fully qualified name):
-    - `dotnet test .\PandaBattleship.API.Tests\PandaBattleship.API.Tests.csproj --filter FullyQualifiedName~PandaBattleship.API.Tests.TestEndpointTests.GetOpenApiDocument_ReturnsSuccess`
+    - `dotnet test .\PandaBattleship.API.Tests\PandaBattleship.API.Tests.csproj --filter FullyQualifiedName~PandaBattleship.API.Tests.OpenApiEndpointTests.GetOpenApiDocument_ReturnsSuccess`
 
 - What currently passes (smoke)
-  - `PandaBattleship.API.Tests\TestEndpointTests.cs` issues an HTTP GET to `/openapi/v1.json` using `WebApplicationFactory<Program>` and asserts HTTP 200 and JSON content type. This runs green without a database.
+  - `PandaBattleship.API.Tests\OpenApiEndpointTests.cs` issues an HTTP GET to `/openapi/v1.json` using `WebApplicationFactory<Program>` and asserts HTTP 200 and JSON content type. This runs green without a database. Other suites (`BoardTests`, `GameServiceTests`, `GameEndpointTests`, `GameTurnTests`, `ShipLayoutFileTests`, and integration `ApiStartupTests`) are also in-memory and DB-free.
 
 - Adding a new integration test
   - Pattern to follow (minimal):
@@ -117,15 +109,15 @@ Notes:
 - API
   - Minimal API style, top‑level `Program.cs`, partial `Program` type declared at bottom for `WebApplicationFactory`.
   - Health checks are standardized via `AddServiceDefaults()` and `MapDefaultEndpoints()` (see `PandaBattleship.ServiceDefaults`). Prefer adding new endpoints via `app.MapGet(...)`/`MapGroup(...)` and keep environment‑specific features gated by `app.Environment.IsDevelopment()`.
-  - Database access currently uses `NpgsqlDataSource` DI (via `builder.AddNpgsqlDataSource("db")`). For new features, inject `NpgsqlDataSource` rather than creating raw `NpgsqlConnection` manually.
+  - Game state lives in the in‑memory `GameService` singleton — games do not survive an API restart. Database access (`NpgsqlDataSource` DI via `builder.AddNpgsqlDataSource("db")`) is present but commented out; if you re‑enable it, inject `NpgsqlDataSource` rather than creating raw `NpgsqlConnection` manually.
 
 - AppHost (Aspire)
-  - Postgres resource is persistent (`WithLifetime(ContainerLifetime.Persistent)`) and listens on port `58123`; database logical name is `pandaDb`.
-  - Parameters are provided via user‑secrets under the `Parameters:` prefix. Avoid hardcoding credentials; rely on secrets/parameters in local dev.
+  - The Postgres resource (persistent lifetime, port `58123`, database `pandaDb`, Parameters `DbUserName`/`DbPassword`) is currently commented out. If you re‑enable it, provide the parameters via user‑secrets under the `Parameters:` prefix and avoid hardcoding credentials.
 
 - FE
-  - React + Vite; Tailwind is present in devDependencies. Scripts: `dev`, `build`, `preview`.
-  - The FE is currently UI‑only (board logic demo) and does not call the API. Introduce backend calls behind a small API client module and make the base URL configurable via Vite env (`import.meta.env.VITE_API_BASE_URL`). When integrating, wire the FE NPM app in AppHost to the API reference (already present) to benefit from Aspire endpoint discovery.
+  - React 19 + Vite + Tailwind CSS 4 + TypeScript. Scripts: `dev`, `build`, `lint`, `preview`, `test`.
+  - Route‑level screens live in `src/pages/` (wired in `src/main.tsx` via React Router 7); shared components in `src/components/`, pure logic in `src/utils/`, realtime in `src/hooks/useGameHub.ts`.
+  - PvP mode calls the API and the SignalR hub. During local dev the API base URL is handled by Vite's proxy (`/games`, `/gamehub`) rather than a Vite env var.
 
 - Testing guidance
   - Keep fast, hermetic tests as default. Avoid hitting Postgres in unit/integration tests unless necessary. Prefer using `/openapi/v1.json` or pure in‑memory tests for smoke checks.
@@ -136,6 +128,6 @@ Notes:
 #### Verified commands (as of last edit)
 
 - `dotnet build .\PandaBattleship.sln -v minimal` — builds solution
-- `dotnet test .\PandaBattleship.sln -v minimal` — test suite green (includes OpenAPI smoke test)
-- `dotnet run --project .\PandaBattleship.AppHost` — starts Aspire (requires `Parameters:DbUserName`/`Parameters:DbPassword` secrets)
+- `dotnet test .\PandaBattleship.sln -v minimal` — runs the test suite (includes OpenAPI smoke test)
+- `dotnet run --project .\PandaBattleship.AppHost` — starts Aspire (no secrets required; Postgres is disabled)
 - `npm ci && npm run dev` from `PandaBattleship.FE` — starts FE dev server
